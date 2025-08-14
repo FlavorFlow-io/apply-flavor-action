@@ -1,15 +1,9 @@
-name: Hello World
-description: Greet someone and record the time
-
-inputs:
-  who-to-greet: # id of input
-    description: Who to greet
-    required: true
-    default: World
+name: Apply Branding
+description: Apply branding configuration for a specific flavor automatically from environment variables
 
 outputs:
-  time: # id of output
-    description: The time we greeted you
+  status:
+    description: 'Status of the branding application'
 
 runs:
   using: node20

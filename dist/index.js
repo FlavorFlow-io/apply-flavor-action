@@ -27654,14 +27654,15 @@ function updateBuildFiles(appModule, oldPackage, newPackage) {
     try {
       if (fs.existsSync(buildPath)) {
         const content = readFileContent(buildPath);
+        // Replace all occurrences of the old package name with the new one
         const updatedContent = content.replace(
-          new RegExp(`applicationId\\s*=?\\s*["']${escapeRegex$1(oldPackage)}["']`, 'g'),
-          `applicationId "${newPackage}"`
+          new RegExp(escapeRegex$1(oldPackage), 'g'),
+          newPackage
         );
         
         if (content !== updatedContent) {
           writeFileContent(buildPath, updatedContent);
-          coreExports.info(`Updated applicationId in ${buildPath}`);
+          coreExports.info(`Updated package name from ${oldPackage} to ${newPackage} in ${buildPath}`);
         }
       }
     } catch (error) {

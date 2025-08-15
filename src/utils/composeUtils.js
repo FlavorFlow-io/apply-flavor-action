@@ -7,6 +7,54 @@ import * as fs from 'fs';
  * Compose theme management utilities
  */
 
+/**
+ * Check if the project uses Compose theming (has Theme.kt files)
+ * @param {string} appModule - Path to the Android app module
+ * @returns {boolean} - True if the project uses Compose theming
+ */
+export function usesComposeTheming(appModule) {
+  try {
+    const sourceDirs = ['src/main/java', 'src/main/kotlin'];
+    
+    for (const sourceDir of sourceDirs) {
+      const sourcePath = path.join(appModule, sourceDir);
+      
+      if (fs.existsSync(sourcePath)) {
+        const files = fs.readdirSync(sourcePath, { recursive: true });
+        
+        // Check for Theme.kt files or @Composable theme functions
+        const hasComposeTheme = files.some(file => {
+          if (typeof file === 'string' && file.endsWith('Theme.kt')) {
+            return true;
+          }
+          if (typeof file === 'string' && file.endsWith('.kt')) {
+            try {
+              const filePath = path.join(sourcePath, file);
+              const content = fs.readFileSync(filePath, 'utf8');
+              return content.includes('@Composable') && 
+                     (content.includes('Theme(') || content.includes('MaterialTheme'));
+            } catch {
+              return false;
+            }
+          }
+          return false;
+        });
+        
+        if (hasComposeTheme) {
+          core.info('✓ Project uses Compose theming, XML themes not needed');
+          return true;
+        }
+      }
+    }
+    
+    core.info('✓ Project uses traditional XML theming');
+    return false;
+  } catch (error) {
+    core.debug(`Failed to detect Compose theming: ${error.message}`);
+    return false;
+  }
+}
+
 export function updateComposeTheme(appModule, config) {
   const themeFiles = findComposeThemeFiles(appModule, config);
   

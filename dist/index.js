@@ -27708,6 +27708,54 @@ function pathToPackage(packagePath) {
  * Compose theme management utilities
  */
 
+/**
+ * Check if the project uses Compose theming (has Theme.kt files)
+ * @param {string} appModule - Path to the Android app module
+ * @returns {boolean} - True if the project uses Compose theming
+ */
+function usesComposeTheming(appModule) {
+  try {
+    const sourceDirs = ['src/main/java', 'src/main/kotlin'];
+    
+    for (const sourceDir of sourceDirs) {
+      const sourcePath = path.join(appModule, sourceDir);
+      
+      if (fs.existsSync(sourcePath)) {
+        const files = fs.readdirSync(sourcePath, { recursive: true });
+        
+        // Check for Theme.kt files or @Composable theme functions
+        const hasComposeTheme = files.some(file => {
+          if (typeof file === 'string' && file.endsWith('Theme.kt')) {
+            return true;
+          }
+          if (typeof file === 'string' && file.endsWith('.kt')) {
+            try {
+              const filePath = path.join(sourcePath, file);
+              const content = fs.readFileSync(filePath, 'utf8');
+              return content.includes('@Composable') && 
+                     (content.includes('Theme(') || content.includes('MaterialTheme'));
+            } catch {
+              return false;
+            }
+          }
+          return false;
+        });
+        
+        if (hasComposeTheme) {
+          coreExports.info('✓ Project uses Compose theming, XML themes not needed');
+          return true;
+        }
+      }
+    }
+    
+    coreExports.info('✓ Project uses traditional XML theming');
+    return false;
+  } catch (error) {
+    coreExports.debug(`Failed to detect Compose theming: ${error.message}`);
+    return false;
+  }
+}
+
 function updateComposeTheme(appModule, config) {
   const themeFiles = findComposeThemeFiles(appModule);
   
@@ -29013,14 +29061,24 @@ async function applyBranding(flavor, logoPath) {
     
     // Update colors and theme
     if (flavor.theme) {
-      // Update XML colors for compatibility
-      updateXmlColors(appModule, flavor);
+      // Check if the project uses Compose theming
+      const isComposeProject = usesComposeTheming(appModule);
       
-      // Update Compose theme
-      updateComposeTheme(appModule, flavor);
-      
-      // Create theme XML
-      createThemeXml(appModule, flavor);
+      if (isComposeProject) {
+        coreExports.info("Project uses Compose theming - updating Compose theme files only");
+        // Only update Compose theme files
+        updateComposeTheme(appModule, flavor);
+      } else {
+        coreExports.info("Project uses XML theming - updating both XML and Compose files");
+        // Update XML colors for compatibility
+        updateXmlColors(appModule, flavor);
+        
+        // Update Compose theme (if any)
+        updateComposeTheme(appModule, flavor);
+        
+        // Create theme XML
+        createThemeXml(appModule, flavor);
+      }
     }
     
     // Generate app icons from logo

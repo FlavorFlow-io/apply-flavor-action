@@ -3,7 +3,7 @@ import * as path from "path";
 import * as fs from "fs";
 import { findAndroidAppModule } from './utils/fileUtils.js';
 import { detectExistingPackage, updatePackageReferences } from './utils/packageUtils.js';
-import { updateComposeTheme } from './utils/composeUtils.js';
+import { updateComposeTheme, usesComposeTheming } from './utils/composeUtils.js';
 import { updateAppName, updateXmlColors, createThemeXml, updateApplicationId } from './utils/androidUtils.js';
 import { generateAppIcons, generateAdaptiveIcons } from './utils/iconUtils.js';
 
@@ -119,14 +119,24 @@ async function applyBranding(flavor, logoPath) {
     
     // Update colors and theme
     if (flavor.theme) {
-      // Update XML colors for compatibility
-      updateXmlColors(appModule, flavor);
+      // Check if the project uses Compose theming
+      const isComposeProject = usesComposeTheming(appModule);
       
-      // Update Compose theme
-      updateComposeTheme(appModule, flavor);
-      
-      // Create theme XML
-      createThemeXml(appModule, flavor);
+      if (isComposeProject) {
+        core.info("Project uses Compose theming - updating Compose theme files only");
+        // Only update Compose theme files
+        updateComposeTheme(appModule, flavor);
+      } else {
+        core.info("Project uses XML theming - updating both XML and Compose files");
+        // Update XML colors for compatibility
+        updateXmlColors(appModule, flavor);
+        
+        // Update Compose theme (if any)
+        updateComposeTheme(appModule, flavor);
+        
+        // Create theme XML
+        createThemeXml(appModule, flavor);
+      }
     }
     
     // Generate app icons from logo

@@ -204,17 +204,35 @@ export function updateApplicationId(appModule, packageName) {
     
     try {
       if (require('fs').existsSync(buildPath)) {
-        const content = readFileContent(buildPath);
+        let content = readFileContent(buildPath);
+        let updated = false;
         
         // Update applicationId
-        const updatedContent = content.replace(
+        const newContentAppId = content.replace(
           /applicationId\s*=?\s*["'][^"']*["']/g,
           `applicationId "${packageName}"`
         );
         
-        if (content !== updatedContent) {
-          writeFileContent(buildPath, updatedContent);
+        if (content !== newContentAppId) {
+          content = newContentAppId;
+          updated = true;
           core.info(`✓ Updated applicationId to: ${packageName}`);
+        }
+        
+        // Update namespace (for newer Gradle versions)
+        const newContentNamespace = content.replace(
+          /namespace\s*=\s*["'][^"']*["']/g,
+          `namespace = "${packageName}"`
+        );
+        
+        if (content !== newContentNamespace) {
+          content = newContentNamespace;
+          updated = true;
+          core.info(`✓ Updated namespace to: ${packageName}`);
+        }
+        
+        if (updated) {
+          writeFileContent(buildPath, content);
           return; // Only update one build file
         }
       }

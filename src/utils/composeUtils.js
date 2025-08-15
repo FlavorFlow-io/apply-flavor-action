@@ -1,6 +1,7 @@
 import * as core from '@actions/core';
 import { readFileContent, writeFileContent, ensureDirectoryExists } from './fileUtils.js';
 import * as path from 'path';
+import * as fs from 'fs';
 
 /**
  * Compose theme management utilities
@@ -21,6 +22,35 @@ export function updateComposeTheme(appModule, config) {
   }
 }
 
+function detectPrimarySourceDirectory(appModule) {
+  const sourceDirs = ['src/main/java', 'src/main/kotlin'];
+  
+  for (const sourceDir of sourceDirs) {
+    const sourcePath = path.join(appModule, sourceDir);
+    
+    try {
+      if (fs.existsSync(sourcePath)) {
+        const files = fs.readdirSync(sourcePath, { recursive: true });
+        
+        // Check if this directory has source files
+        const hasSourceFiles = files.some(file => 
+          file.endsWith('.kt') || file.endsWith('.java')
+        );
+        
+        if (hasSourceFiles) {
+          core.info(`Detected primary source directory: ${sourceDir}`);
+          return sourceDir;
+        }
+      }
+    } catch (error) {
+      core.debug(`Failed to check ${sourcePath}: ${error.message}`);
+    }
+  }
+  
+  // Default to Java if no source files found
+  return 'src/main/java';
+}
+
 function findComposeThemeFiles(appModule, config) {
   const themeFiles = [];
   const searchDirs = [
@@ -32,7 +62,7 @@ function findComposeThemeFiles(appModule, config) {
     const sourcePath = path.join(appModule, searchDir);
     
     try {
-      const files = require('fs').readdirSync(sourcePath, { recursive: true });
+      const files = fs.readdirSync(sourcePath, { recursive: true });
       
       for (const file of files) {
         if ((file.includes('theme') || file.includes('Theme')) && 
@@ -69,7 +99,8 @@ function updateExistingComposeTheme(themeFile, config) {
 }
 
 function updateColorFile(content, config) {
-  const theme = config.theme?.light || {};
+  const lightTheme = config.theme?.light || {};
+  const darkTheme = config.theme?.dark || {};
   
   // Add color import if not present
   if (!content.includes('import androidx.compose.ui.graphics.Color')) {
@@ -82,60 +113,282 @@ function updateColorFile(content, config) {
     }
   }
   
-  // Update or add color definitions
-  const colorMappings = [
-    { name: 'Primary', value: theme.primary || '#6650a4' },
-    { name: 'Secondary', value: theme.secondary || '#625b71' },
-    { name: 'Tertiary', value: theme.tertiary || '#7D5260' },
-    { name: 'Background', value: theme.background || '#FFFBFE' },
-    { name: 'Surface', value: theme.surface || '#FFFBFE' },
-    { name: 'OnPrimary', value: theme.on_primary || '#FFFFFF' },
-    { name: 'OnSecondary', value: theme.on_secondary || '#FFFFFF' },
-    { name: 'OnTertiary', value: theme.on_tertiary || '#FFFFFF' },
-    { name: 'OnBackground', value: theme.on_background || '#1C1B1F' },
-    { name: 'OnSurface', value: theme.on_surface || '#1C1B1F' }
-  ];
+  // Check if Brand colors already exist
+  const hasBrandColors = content.includes('// FlavorFlow Branding Colors');
   
-  for (const color of colorMappings) {
-    const hexValue = hexToComposeColor(color.value);
-    const pattern = new RegExp(`val\\s+${color.name}\\s*=\\s*Color\\([^)]+\\)`, 'g');
-    const replacement = `val ${color.name} = Color(${hexValue})`;
+  if (!hasBrandColors) {
+    // Add comprehensive Brand color variables like the Python version
+    const newVariables = [
+      '',
+      '// FlavorFlow Branding Colors',
+      '// Use these colors in your theme for consistent branding',
+      ''
+    ];
     
-    if (pattern.test(content)) {
-      content = content.replace(pattern, replacement);
-    } else {
-      // Add new color definition
-      content += `\nval ${color.name} = Color(${hexValue})`;
+    // Add core brand colors only if they exist in config
+    if (lightTheme.primary) {
+      newVariables.push(`val BrandLightPrimary = Color(${hexToComposeColor(lightTheme.primary)})`);
     }
+    if (darkTheme.primary) {
+      newVariables.push(`val BrandDarkPrimary = Color(${hexToComposeColor(darkTheme.primary)})`);
+    }
+    
+    if (lightTheme.secondary) {
+      newVariables.push(`val BrandLightSecondary = Color(${hexToComposeColor(lightTheme.secondary)})`);
+    }
+    if (darkTheme.secondary) {
+      newVariables.push(`val BrandDarkSecondary = Color(${hexToComposeColor(darkTheme.secondary)})`);
+    }
+    
+    if (lightTheme.tertiary) {
+      newVariables.push(`val BrandLightTertiary = Color(${hexToComposeColor(lightTheme.tertiary)})`);
+    }
+    if (darkTheme.tertiary) {
+      newVariables.push(`val BrandDarkTertiary = Color(${hexToComposeColor(darkTheme.tertiary)})`);
+    }
+    
+    if (lightTheme.background) {
+      newVariables.push(`val BrandLightBackground = Color(${hexToComposeColor(lightTheme.background)})`);
+    }
+    if (darkTheme.background) {
+      newVariables.push(`val BrandDarkBackground = Color(${hexToComposeColor(darkTheme.background)})`);
+    }
+    
+    if (lightTheme.surface) {
+      newVariables.push(`val BrandLightSurface = Color(${hexToComposeColor(lightTheme.surface)})`);
+    }
+    if (darkTheme.surface) {
+      newVariables.push(`val BrandDarkSurface = Color(${hexToComposeColor(darkTheme.surface)})`);
+    }
+    
+    if (lightTheme.on_primary) {
+      newVariables.push(`val BrandLightOnPrimary = Color(${hexToComposeColor(lightTheme.on_primary)})`);
+    }
+    if (darkTheme.on_primary) {
+      newVariables.push(`val BrandDarkOnPrimary = Color(${hexToComposeColor(darkTheme.on_primary)})`);
+    }
+    
+    if (lightTheme.on_secondary) {
+      newVariables.push(`val BrandLightOnSecondary = Color(${hexToComposeColor(lightTheme.on_secondary)})`);
+    }
+    if (darkTheme.on_secondary) {
+      newVariables.push(`val BrandDarkOnSecondary = Color(${hexToComposeColor(darkTheme.on_secondary)})`);
+    }
+    
+    if (lightTheme.on_tertiary) {
+      newVariables.push(`val BrandLightOnTertiary = Color(${hexToComposeColor(lightTheme.on_tertiary)})`);
+    }
+    if (darkTheme.on_tertiary) {
+      newVariables.push(`val BrandDarkOnTertiary = Color(${hexToComposeColor(darkTheme.on_tertiary)})`);
+    }
+    
+    if (lightTheme.on_background) {
+      newVariables.push(`val BrandLightOnBackground = Color(${hexToComposeColor(lightTheme.on_background)})`);
+    }
+    if (darkTheme.on_background) {
+      newVariables.push(`val BrandDarkOnBackground = Color(${hexToComposeColor(darkTheme.on_background)})`);
+    }
+    
+    if (lightTheme.on_surface) {
+      newVariables.push(`val BrandLightOnSurface = Color(${hexToComposeColor(lightTheme.on_surface)})`);
+    }
+    if (darkTheme.on_surface) {
+      newVariables.push(`val BrandDarkOnSurface = Color(${hexToComposeColor(darkTheme.on_surface)})`);
+    }
+    
+    // Only add if we have any brand variables
+    if (newVariables.length > 4) {
+      newVariables.push('');
+      content = content.trim() + '\n\n' + newVariables.join('\n') + '\n';
+    }
+  } else {
+    // Update existing Brand color variables
+    content = updateColorVariables(content, config);
+  }
+  
+  return content;
+}
+
+function updateColorVariables(content, config) {
+  const lightTheme = config.theme?.light || {};
+  const darkTheme = config.theme?.dark || {};
+  
+  // Define color variable patterns and their replacements
+  const colorUpdates = [];
+  
+  if (lightTheme.primary) {
+    colorUpdates.push([/val\s+BrandLightPrimary\s*=\s*Color\([^)]+\)/, `val BrandLightPrimary = Color(${hexToComposeColor(lightTheme.primary)})`]);
+  }
+  if (darkTheme.primary) {
+    colorUpdates.push([/val\s+BrandDarkPrimary\s*=\s*Color\([^)]+\)/, `val BrandDarkPrimary = Color(${hexToComposeColor(darkTheme.primary)})`]);
+  }
+  
+  if (lightTheme.secondary) {
+    colorUpdates.push([/val\s+BrandLightSecondary\s*=\s*Color\([^)]+\)/, `val BrandLightSecondary = Color(${hexToComposeColor(lightTheme.secondary)})`]);
+  }
+  if (darkTheme.secondary) {
+    colorUpdates.push([/val\s+BrandDarkSecondary\s*=\s*Color\([^)]+\)/, `val BrandDarkSecondary = Color(${hexToComposeColor(darkTheme.secondary)})`]);
+  }
+  
+  if (lightTheme.tertiary) {
+    colorUpdates.push([/val\s+BrandLightTertiary\s*=\s*Color\([^)]+\)/, `val BrandLightTertiary = Color(${hexToComposeColor(lightTheme.tertiary)})`]);
+  }
+  if (darkTheme.tertiary) {
+    colorUpdates.push([/val\s+BrandDarkTertiary\s*=\s*Color\([^)]+\)/, `val BrandDarkTertiary = Color(${hexToComposeColor(darkTheme.tertiary)})`]);
+  }
+  
+  if (lightTheme.background) {
+    colorUpdates.push([/val\s+BrandLightBackground\s*=\s*Color\([^)]+\)/, `val BrandLightBackground = Color(${hexToComposeColor(lightTheme.background)})`]);
+  }
+  if (darkTheme.background) {
+    colorUpdates.push([/val\s+BrandDarkBackground\s*=\s*Color\([^)]+\)/, `val BrandDarkBackground = Color(${hexToComposeColor(darkTheme.background)})`]);
+  }
+  
+  if (lightTheme.surface) {
+    colorUpdates.push([/val\s+BrandLightSurface\s*=\s*Color\([^)]+\)/, `val BrandLightSurface = Color(${hexToComposeColor(lightTheme.surface)})`]);
+  }
+  if (darkTheme.surface) {
+    colorUpdates.push([/val\s+BrandDarkSurface\s*=\s*Color\([^)]+\)/, `val BrandDarkSurface = Color(${hexToComposeColor(darkTheme.surface)})`]);
+  }
+  
+  if (lightTheme.on_primary) {
+    colorUpdates.push([/val\s+BrandLightOnPrimary\s*=\s*Color\([^)]+\)/, `val BrandLightOnPrimary = Color(${hexToComposeColor(lightTheme.on_primary)})`]);
+  }
+  if (darkTheme.on_primary) {
+    colorUpdates.push([/val\s+BrandDarkOnPrimary\s*=\s*Color\([^)]+\)/, `val BrandDarkOnPrimary = Color(${hexToComposeColor(darkTheme.on_primary)})`]);
+  }
+  
+  if (lightTheme.on_secondary) {
+    colorUpdates.push([/val\s+BrandLightOnSecondary\s*=\s*Color\([^)]+\)/, `val BrandLightOnSecondary = Color(${hexToComposeColor(lightTheme.on_secondary)})`]);
+  }
+  if (darkTheme.on_secondary) {
+    colorUpdates.push([/val\s+BrandDarkOnSecondary\s*=\s*Color\([^)]+\)/, `val BrandDarkOnSecondary = Color(${hexToComposeColor(darkTheme.on_secondary)})`]);
+  }
+  
+  if (lightTheme.on_tertiary) {
+    colorUpdates.push([/val\s+BrandLightOnTertiary\s*=\s*Color\([^)]+\)/, `val BrandLightOnTertiary = Color(${hexToComposeColor(lightTheme.on_tertiary)})`]);
+  }
+  if (darkTheme.on_tertiary) {
+    colorUpdates.push([/val\s+BrandDarkOnTertiary\s*=\s*Color\([^)]+\)/, `val BrandDarkOnTertiary = Color(${hexToComposeColor(darkTheme.on_tertiary)})`]);
+  }
+  
+  if (lightTheme.on_background) {
+    colorUpdates.push([/val\s+BrandLightOnBackground\s*=\s*Color\([^)]+\)/, `val BrandLightOnBackground = Color(${hexToComposeColor(lightTheme.on_background)})`]);
+  }
+  if (darkTheme.on_background) {
+    colorUpdates.push([/val\s+BrandDarkOnBackground\s*=\s*Color\([^)]+\)/, `val BrandDarkOnBackground = Color(${hexToComposeColor(darkTheme.on_background)})`]);
+  }
+  
+  if (lightTheme.on_surface) {
+    colorUpdates.push([/val\s+BrandLightOnSurface\s*=\s*Color\([^)]+\)/, `val BrandLightOnSurface = Color(${hexToComposeColor(lightTheme.on_surface)})`]);
+  }
+  if (darkTheme.on_surface) {
+    colorUpdates.push([/val\s+BrandDarkOnSurface\s*=\s*Color\([^)]+\)/, `val BrandDarkOnSurface = Color(${hexToComposeColor(darkTheme.on_surface)})`]);
+  }
+  
+  // Apply all color updates
+  for (const [pattern, replacement] of colorUpdates) {
+    content = content.replace(pattern, replacement);
   }
   
   return content;
 }
 
 function updateThemeFile(content, config) {
-  const theme = config.theme?.light || {};
+  // Use the robust approach from Python script
+  content = updateThemeKtColors(content, config);
   
-  // Update lightColorScheme
-  const lightColors = [
-    `primary = ${theme.primary ? 'Primary' : 'Color(0xFF6650a4)'}`,
-    `secondary = ${theme.secondary ? 'Secondary' : 'Color(0xFF625b71)'}`,
-    `tertiary = ${theme.tertiary ? 'Tertiary' : 'Color(0xFF7D5260)'}`,
-    `background = ${theme.background ? 'Background' : 'Color(0xFFFFFBFE)'}`,
-    `surface = ${theme.surface ? 'Surface' : 'Color(0xFFFFFBFE)'}`,
-    `onPrimary = ${theme.on_primary ? 'OnPrimary' : 'Color(0xFFFFFFFF)'}`,
-    `onSecondary = ${theme.on_secondary ? 'OnSecondary' : 'Color(0xFFFFFFFF)'}`,
-    `onTertiary = ${theme.on_tertiary ? 'OnTertiary' : 'Color(0xFFFFFFFF)'}`,
-    `onBackground = ${theme.on_background ? 'OnBackground' : 'Color(0xFF1C1B1F)'}`,
-    `onSurface = ${theme.on_surface ? 'OnSurface' : 'Color(0xFF1C1B1F)'}`
-  ];
+  // Set dynamicColor to false by default to use custom colors
+  content = content.replace(
+    /dynamicColor:\s*Boolean\s*=\s*true/,
+    'dynamicColor: Boolean = false, // Set to false to use custom colors'
+  );
   
-  const lightScheme = `lightColorScheme(\n    ${lightColors.join(',\n    ')}\n)`;
+  return content;
+}
+
+function updateThemeKtColors(content, config) {
+  const lightTheme = config.theme?.light || {};
+  const darkTheme = config.theme?.dark || {};
   
-  // Replace existing lightColorScheme
-  const lightPattern = /lightColorScheme\s*\([^)]*\)/s;
-  if (lightPattern.test(content)) {
-    content = content.replace(lightPattern, lightScheme);
+  // First, try to fix any corrupted lightColorScheme blocks
+  content = fixCorruptedColorSchemes(content);
+  
+  // Build light color scheme dynamically based on available colors
+  const lightColorAssignments = [];
+  if (lightTheme.primary) lightColorAssignments.push('primary = BrandLightPrimary');
+  if (lightTheme.secondary) lightColorAssignments.push('secondary = BrandLightSecondary');
+  if (lightTheme.tertiary) lightColorAssignments.push('tertiary = BrandLightTertiary');
+  if (lightTheme.background) lightColorAssignments.push('background = BrandLightBackground');
+  if (lightTheme.surface) lightColorAssignments.push('surface = BrandLightSurface');
+  if (lightTheme.on_primary) lightColorAssignments.push('onPrimary = BrandLightOnPrimary');
+  if (lightTheme.on_secondary) lightColorAssignments.push('onSecondary = BrandLightOnSecondary');
+  if (lightTheme.on_tertiary) lightColorAssignments.push('onTertiary = BrandLightOnTertiary');
+  if (lightTheme.on_background) lightColorAssignments.push('onBackground = BrandLightOnBackground');
+  if (lightTheme.on_surface) lightColorAssignments.push('onSurface = BrandLightOnSurface');
+  
+  // Build dark color scheme dynamically based on available colors
+  const darkColorAssignments = [];
+  if (darkTheme.primary) darkColorAssignments.push('primary = BrandDarkPrimary');
+  if (darkTheme.secondary) darkColorAssignments.push('secondary = BrandDarkSecondary');
+  if (darkTheme.tertiary) darkColorAssignments.push('tertiary = BrandDarkTertiary');
+  if (darkTheme.background) darkColorAssignments.push('background = BrandDarkBackground');
+  if (darkTheme.surface) darkColorAssignments.push('surface = BrandDarkSurface');
+  if (darkTheme.on_primary) darkColorAssignments.push('onPrimary = BrandDarkOnPrimary');
+  if (darkTheme.on_secondary) darkColorAssignments.push('onSecondary = BrandDarkOnSecondary');
+  if (darkTheme.on_tertiary) darkColorAssignments.push('onTertiary = BrandDarkOnTertiary');
+  if (darkTheme.on_background) darkColorAssignments.push('onBackground = BrandDarkOnBackground');
+  if (darkTheme.on_surface) darkColorAssignments.push('onSurface = BrandDarkOnSurface');
+  
+  // If no dark colors, use defaults
+  if (darkColorAssignments.length === 0) {
+    darkColorAssignments.push('primary = Purple80', 'secondary = PurpleGrey80', 'tertiary = Pink80');
   }
+  
+  // Replace light color scheme with dynamic assignments
+  if (lightColorAssignments.length > 0) {
+    const lightScheme = `lightColorScheme(
+    ${lightColorAssignments.join(',\n    ')}
+)`;
+    content = content.replace(/lightColorScheme\s*\([^)]*\)/gs, lightScheme);
+  }
+  
+  // Replace dark color scheme with dynamic assignments
+  const darkScheme = `darkColorScheme(
+    ${darkColorAssignments.join(',\n    ')}
+)`;
+  content = content.replace(/darkColorScheme\s*\([^)]*\)/gs, darkScheme);
+  
+  return content;
+}
+
+function fixCorruptedColorSchemes(content) {
+  // Fix corrupted lightColorScheme blocks - remove orphaned code and extra commas
+  content = content.replace(
+    /lightColorScheme\s*\([^)]+\)\s*,\s*.*?\*\/\s*\)/gs,
+    `lightColorScheme(
+    primary = BrandLightPrimary,
+    secondary = BrandLightSecondary,
+    tertiary = BrandLightTertiary,
+    background = BrandLightBackground,
+    surface = BrandLightSurface,
+    onPrimary = BrandLightOnPrimary,
+    onSecondary = BrandLightOnSecondary,
+    onTertiary = BrandLightOnTertiary,
+    onBackground = BrandLightOnBackground,
+    onSurface = BrandLightOnSurface
+)`
+  );
+  
+  // Fix corrupted darkColorScheme blocks - only include colors that exist
+  content = content.replace(
+    /darkColorScheme\s*\([^)]+\)\s*,\s*.*?\*\/\s*\)/gs,
+    `darkColorScheme(
+    primary = Purple80,
+    secondary = PurpleGrey80,
+    tertiary = Pink80
+)`
+  );
   
   return content;
 }
@@ -144,8 +397,11 @@ function createComposeThemeFiles(appModule, config) {
   const packageName = config.package_name || 'com.example.app';
   const packagePath = packageName.replace(/\./g, '/');
   
-  // Create theme directory
-  const themeDir = path.join(appModule, 'src/main/kotlin', packagePath, 'ui/theme');
+  // Detect which source directory to use (Java or Kotlin)
+  const sourceDir = detectPrimarySourceDirectory(appModule);
+  
+  // Create theme directory in the appropriate source directory
+  const themeDir = path.join(appModule, sourceDir, packagePath, 'ui/theme');
   ensureDirectoryExists(themeDir);
   
   // Create Color.kt
@@ -161,42 +417,95 @@ function createComposeThemeFiles(appModule, config) {
 }
 
 function createColorFile(themeDir, config, packageName) {
-  const theme = config.theme?.light || {};
+  const lightTheme = config.theme?.light || {};
+  const darkTheme = config.theme?.dark || {};
   
-  const content = `package ${packageName}
+  let content = `package ${packageName}
 
 import androidx.compose.ui.graphics.Color
 
-// Light theme colors
-val Primary = Color(${hexToComposeColor(theme.primary || '#6650a4')})
-val Secondary = Color(${hexToComposeColor(theme.secondary || '#625b71')})
-val Tertiary = Color(${hexToComposeColor(theme.tertiary || '#7D5260')})
-val Background = Color(${hexToComposeColor(theme.background || '#FFFBFE')})
-val Surface = Color(${hexToComposeColor(theme.surface || '#FFFBFE')})
-val OnPrimary = Color(${hexToComposeColor(theme.on_primary || '#FFFFFF')})
-val OnSecondary = Color(${hexToComposeColor(theme.on_secondary || '#FFFFFF')})
-val OnTertiary = Color(${hexToComposeColor(theme.on_tertiary || '#FFFFFF')})
-val OnBackground = Color(${hexToComposeColor(theme.on_background || '#1C1B1F')})
-val OnSurface = Color(${hexToComposeColor(theme.on_surface || '#1C1B1F')})
-
-// Dark theme colors
-val DarkPrimary = Color(${hexToComposeColor(theme.primary || '#D0BCFF')})
-val DarkSecondary = Color(${hexToComposeColor(theme.secondary || '#CCC2DC')})
-val DarkTertiary = Color(${hexToComposeColor(theme.tertiary || '#EFB8C8')})
-val DarkBackground = Color(0xFF121212)
-val DarkSurface = Color(0xFF121212)
-val DarkOnPrimary = Color(0xFF381E72)
-val DarkOnSecondary = Color(0xFF332D41)
-val DarkOnTertiary = Color(0xFF492532)
-val DarkOnBackground = Color(0xFFE6E1E5)
-val DarkOnSurface = Color(0xFFE6E1E5)
 `;
+
+  // Add light theme colors only if they exist
+  if (Object.keys(lightTheme).length > 0) {
+    content += '// Light theme colors\n';
+    
+    if (lightTheme.primary) {
+      content += `val Primary = Color(${hexToComposeColor(lightTheme.primary)})\n`;
+    }
+    if (lightTheme.secondary) {
+      content += `val Secondary = Color(${hexToComposeColor(lightTheme.secondary)})\n`;
+    }
+    if (lightTheme.tertiary) {
+      content += `val Tertiary = Color(${hexToComposeColor(lightTheme.tertiary)})\n`;
+    }
+    if (lightTheme.background) {
+      content += `val Background = Color(${hexToComposeColor(lightTheme.background)})\n`;
+    }
+    if (lightTheme.surface) {
+      content += `val Surface = Color(${hexToComposeColor(lightTheme.surface)})\n`;
+    }
+    if (lightTheme.on_primary) {
+      content += `val OnPrimary = Color(${hexToComposeColor(lightTheme.on_primary)})\n`;
+    }
+    if (lightTheme.on_secondary) {
+      content += `val OnSecondary = Color(${hexToComposeColor(lightTheme.on_secondary)})\n`;
+    }
+    if (lightTheme.on_tertiary) {
+      content += `val OnTertiary = Color(${hexToComposeColor(lightTheme.on_tertiary)})\n`;
+    }
+    if (lightTheme.on_background) {
+      content += `val OnBackground = Color(${hexToComposeColor(lightTheme.on_background)})\n`;
+    }
+    if (lightTheme.on_surface) {
+      content += `val OnSurface = Color(${hexToComposeColor(lightTheme.on_surface)})\n`;
+    }
+    content += '\n';
+  }
+
+  // Add dark theme colors only if they exist
+  if (Object.keys(darkTheme).length > 0) {
+    content += '// Dark theme colors\n';
+    
+    if (darkTheme.primary) {
+      content += `val DarkPrimary = Color(${hexToComposeColor(darkTheme.primary)})\n`;
+    }
+    if (darkTheme.secondary) {
+      content += `val DarkSecondary = Color(${hexToComposeColor(darkTheme.secondary)})\n`;
+    }
+    if (darkTheme.tertiary) {
+      content += `val DarkTertiary = Color(${hexToComposeColor(darkTheme.tertiary)})\n`;
+    }
+    if (darkTheme.background) {
+      content += `val DarkBackground = Color(${hexToComposeColor(darkTheme.background)})\n`;
+    }
+    if (darkTheme.surface) {
+      content += `val DarkSurface = Color(${hexToComposeColor(darkTheme.surface)})\n`;
+    }
+    if (darkTheme.on_primary) {
+      content += `val DarkOnPrimary = Color(${hexToComposeColor(darkTheme.on_primary)})\n`;
+    }
+    if (darkTheme.on_secondary) {
+      content += `val DarkOnSecondary = Color(${hexToComposeColor(darkTheme.on_secondary)})\n`;
+    }
+    if (darkTheme.on_tertiary) {
+      content += `val DarkOnTertiary = Color(${hexToComposeColor(darkTheme.on_tertiary)})\n`;
+    }
+    if (darkTheme.on_background) {
+      content += `val DarkOnBackground = Color(${hexToComposeColor(darkTheme.on_background)})\n`;
+    }
+    if (darkTheme.on_surface) {
+      content += `val DarkOnSurface = Color(${hexToComposeColor(darkTheme.on_surface)})\n`;
+    }
+  }
   
   writeFileContent(path.join(themeDir, 'Color.kt'), content);
 }
 
 function createThemeFile(themeDir, config, packageName) {
   const appName = config.app_name?.replace(/\s+/g, '') || 'App';
+  const hasDarkTheme = config.theme?.dark && Object.keys(config.theme.dark).length > 0;
+  const darkThemeDefault = hasDarkTheme ? 'isSystemInDarkTheme()' : 'false';
   
   const content = `package ${packageName}
 
@@ -243,7 +552,7 @@ private val DarkColorScheme = darkColorScheme(
 
 @Composable
 fun ${appName}Theme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
+    darkTheme: Boolean = ${darkThemeDefault},
     dynamicColor: Boolean = false, // Set to false to use custom colors
     content: @Composable () -> Unit
 ) {

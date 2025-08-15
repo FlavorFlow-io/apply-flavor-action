@@ -2,12 +2,12 @@ import require$$0 from 'os';
 import require$$0$1 from 'crypto';
 import * as fs from 'fs';
 import fs__default from 'fs';
-import * as require$$1 from 'path';
-import require$$1__default from 'path';
+import * as path from 'path';
+import path__default from 'path';
 import require$$2 from 'http';
 import require$$3 from 'https';
 import require$$0$4 from 'net';
-import require$$1$1 from 'tls';
+import require$$1 from 'tls';
 import require$$4 from 'events';
 import require$$0$3 from 'assert';
 import require$$0$2 from 'util';
@@ -16,14 +16,14 @@ import require$$7 from 'buffer';
 import require$$8 from 'querystring';
 import require$$14 from 'stream/web';
 import require$$0$7 from 'node:stream';
-import require$$1$2 from 'node:util';
+import require$$1$1 from 'node:util';
 import require$$0$6 from 'node:events';
 import require$$0$8 from 'worker_threads';
 import require$$2$1 from 'perf_hooks';
 import require$$5 from 'util/types';
 import require$$4$1 from 'async_hooks';
-import require$$1$3 from 'console';
-import require$$1$4 from 'url';
+import require$$1$2 from 'console';
+import require$$1$3 from 'url';
 import require$$3$1 from 'zlib';
 import require$$6 from 'string_decoder';
 import require$$0$9 from 'diagnostics_channel';
@@ -374,7 +374,7 @@ var hasRequiredTunnel$1;
 function requireTunnel$1 () {
 	if (hasRequiredTunnel$1) return tunnel$1;
 	hasRequiredTunnel$1 = 1;
-	var tls = require$$1$1;
+	var tls = require$$1;
 	var http = require$$2;
 	var https = require$$3;
 	var events = require$$4;
@@ -1756,7 +1756,7 @@ function requireSbmh () {
 	 * by Hongli Lai at: https://github.com/FooBarWidget/boyer-moore-horspool
 	 */
 	const EventEmitter = require$$0$6.EventEmitter;
-	const inherits = require$$1$2.inherits;
+	const inherits = require$$1$1.inherits;
 
 	function SBMH (needle) {
 	  if (typeof needle === 'string') {
@@ -1965,7 +1965,7 @@ function requirePartStream () {
 	if (hasRequiredPartStream) return PartStream_1;
 	hasRequiredPartStream = 1;
 
-	const inherits = require$$1$2.inherits;
+	const inherits = require$$1$1.inherits;
 	const ReadableStream = require$$0$7.Readable;
 
 	function PartStream (opts) {
@@ -2011,7 +2011,7 @@ function requireHeaderParser () {
 	hasRequiredHeaderParser = 1;
 
 	const EventEmitter = require$$0$6.EventEmitter;
-	const inherits = require$$1$2.inherits;
+	const inherits = require$$1$1.inherits;
 	const getLimit = requireGetLimit();
 
 	const StreamSearch = requireSbmh();
@@ -2119,7 +2119,7 @@ function requireDicer () {
 	hasRequiredDicer = 1;
 
 	const WritableStream = require$$0$7.Writable;
-	const inherits = require$$1$2.inherits;
+	const inherits = require$$1$1.inherits;
 
 	const StreamSearch = requireSbmh();
 
@@ -2696,7 +2696,7 @@ function requireMultipart () {
 	//     -- this will require modifications to utils.parseParams
 
 	const { Readable } = require$$0$7;
-	const { inherits } = require$$1$2;
+	const { inherits } = require$$1$1;
 
 	const Dicer = requireDicer();
 
@@ -3262,7 +3262,7 @@ function requireMain () {
 	hasRequiredMain = 1;
 
 	const WritableStream = require$$0$7.Writable;
-	const { inherits } = require$$1$2;
+	const { inherits } = require$$1$1;
 	const Dicer = requireDicer();
 
 	const MultipartParser = requireMultipart();
@@ -8086,7 +8086,7 @@ function requireConnect () {
 	    let socket;
 	    if (protocol === 'https:') {
 	      if (!tls) {
-	        tls = require$$1$1;
+	        tls = require$$1;
 	      }
 	      servername = servername || options.servername || util.getServerName(host) || null;
 
@@ -14110,7 +14110,7 @@ function requirePendingInterceptorsFormatter () {
 	hasRequiredPendingInterceptorsFormatter = 1;
 
 	const { Transform } = require$$0$5;
-	const { Console } = require$$1$3;
+	const { Console } = require$$1$2;
 
 	/**
 	 * Gets the output of `console.table(…)` as a string.
@@ -14337,7 +14337,7 @@ function requireProxyAgent () {
 	hasRequiredProxyAgent = 1;
 
 	const { kProxy, kClose, kDestroy, kInterceptors } = requireSymbols$4();
-	const { URL } = require$$1$4;
+	const { URL } = require$$1$3;
 	const Agent = requireAgent();
 	const Pool = requirePool();
 	const DispatcherBase = requireDispatcherBase();
@@ -25508,7 +25508,7 @@ function requirePathUtils () {
 	};
 	Object.defineProperty(pathUtils, "__esModule", { value: true });
 	pathUtils.toPlatformPath = pathUtils.toWin32Path = pathUtils.toPosixPath = void 0;
-	const path = __importStar(require$$1__default);
+	const path = __importStar(path__default);
 	/**
 	 * toPosixPath converts the given path to the posix form. On Windows, \\ will be
 	 * replaced with /.
@@ -25595,7 +25595,7 @@ function requireIoUtil () {
 		Object.defineProperty(exports, "__esModule", { value: true });
 		exports.getCmdPath = exports.tryGetExecutablePath = exports.isRooted = exports.isDirectory = exports.exists = exports.READONLY = exports.UV_FS_O_EXLOCK = exports.IS_WINDOWS = exports.unlink = exports.symlink = exports.stat = exports.rmdir = exports.rm = exports.rename = exports.readlink = exports.readdir = exports.open = exports.mkdir = exports.lstat = exports.copyFile = exports.chmod = void 0;
 		const fs = __importStar(fs__default);
-		const path = __importStar(require$$1__default);
+		const path = __importStar(path__default);
 		_a = fs.promises
 		// export const {open} = 'fs'
 		, exports.chmod = _a.chmod, exports.copyFile = _a.copyFile, exports.lstat = _a.lstat, exports.mkdir = _a.mkdir, exports.open = _a.open, exports.readdir = _a.readdir, exports.readlink = _a.readlink, exports.rename = _a.rename, exports.rm = _a.rm, exports.rmdir = _a.rmdir, exports.stat = _a.stat, exports.symlink = _a.symlink, exports.unlink = _a.unlink;
@@ -25785,7 +25785,7 @@ function requireIo () {
 	Object.defineProperty(io, "__esModule", { value: true });
 	io.findInPath = io.which = io.mkdirP = io.rmRF = io.mv = io.cp = void 0;
 	const assert_1 = require$$0$3;
-	const path = __importStar(require$$1__default);
+	const path = __importStar(path__default);
 	const ioUtil = __importStar(requireIoUtil());
 	/**
 	 * Copies a file or folder.
@@ -26093,7 +26093,7 @@ function requireToolrunner () {
 	const os = __importStar(require$$0);
 	const events = __importStar(require$$4);
 	const child = __importStar(require$$2$2);
-	const path = __importStar(require$$1__default);
+	const path = __importStar(path__default);
 	const io = __importStar(requireIo());
 	const ioUtil = __importStar(requireIoUtil());
 	const timers_1 = require$$6$1;
@@ -26937,7 +26937,7 @@ function requireCore () {
 		const file_command_1 = requireFileCommand();
 		const utils_1 = requireUtils$1();
 		const os = __importStar(require$$0);
-		const path = __importStar(require$$1__default);
+		const path = __importStar(path__default);
 		const oidc_utils_1 = requireOidcUtils();
 		/**
 		 * The code to exit an action
@@ -27248,6 +27248,1097 @@ function requireCore () {
 
 var coreExports = requireCore();
 
+/**
+ * File utility functions for branding operations
+ */
+
+function ensureDirectoryExists(dirPath) {
+  if (!fs.existsSync(dirPath)) {
+    fs.mkdirSync(dirPath, { recursive: true });
+  }
+}
+
+function readFileContent(filePath) {
+  try {
+    return fs.readFileSync(filePath, 'utf8');
+  } catch (error) {
+    throw new Error(`Failed to read file ${filePath}: ${error.message}`);
+  }
+}
+
+function writeFileContent(filePath, content) {
+  try {
+    ensureDirectoryExists(path.dirname(filePath));
+    fs.writeFileSync(filePath, content, 'utf8');
+    return true;
+  } catch (error) {
+    throw new Error(`Failed to write file ${filePath}: ${error.message}`);
+  }
+}
+
+function findFiles(directory, pattern) {
+  const files = [];
+  
+  function walkDir(dir) {
+    try {
+      const items = fs.readdirSync(dir);
+      for (const item of items) {
+        const fullPath = path.join(dir, item);
+        const stat = fs.statSync(fullPath);
+        
+        if (stat.isDirectory()) {
+          walkDir(fullPath);
+        } else if (stat.isFile() && pattern.test(item)) {
+          files.push(fullPath);
+        }
+      }
+    } catch (error) {
+      // Skip directories we can't read
+    }
+  }
+  
+  if (fs.existsSync(directory)) {
+    walkDir(directory);
+  }
+  
+  return files;
+}
+
+function findAndroidAppModule() {
+  const buildFiles = findFiles('.', /^build\.gradle(\.kts)?$/);
+  
+  for (const buildFile of buildFiles) {
+    try {
+      const content = readFileContent(buildFile);
+      if (isAndroidApplicationPlugin(content)) {
+        return path.dirname(buildFile);
+      }
+    } catch (error) {
+      continue;
+    }
+  }
+  
+  // Fallback to 'app' directory
+  return 'app';
+}
+
+function isAndroidApplicationPlugin(content) {
+  // Check for various Android application plugin declarations
+  const patterns = [
+    /com\.android\.application/,
+    /apply plugin:\s*['"]com\.android\.application['"]/,
+    /id\s*['"]com\.android\.application['"]/,
+    /id\s*\(\s*['"]com\.android\.application['"]\s*\)/,
+    /alias\s*\(\s*libs\.plugins\.android\.application\s*\)/,
+    /id\s*\(\s*libs\.plugins\.android\.application\s*\)/
+  ];
+  
+  const hasPlugin = patterns.some(pattern => pattern.test(content));
+  const hasAndroidBlock = /android\s*\{/.test(content);
+  
+  return hasPlugin && hasAndroidBlock;
+}
+
+/**
+ * Package management utilities for Android projects
+ */
+
+const PACKAGE_PATTERN = /^package\s+([a-zA-Z][a-zA-Z0-9_.]*)/m;
+const JAVA_SOURCE_DIR = 'src/main/java';
+const KOTLIN_SOURCE_DIR = 'src/main/kotlin';
+
+function extractPackageFromFile(filePath) {
+  try {
+    const content = readFileContent(filePath);
+    const match = content.match(PACKAGE_PATTERN);
+    return match ? match[1] : null;
+  } catch (error) {
+    coreExports.debug(`Failed to extract package from ${filePath}: ${error.message}`);
+    return null;
+  }
+}
+
+function detectExistingPackage(appModule) {
+  const sourceDirs = [JAVA_SOURCE_DIR, KOTLIN_SOURCE_DIR];
+  
+  for (const sourceDir of sourceDirs) {
+    const sourcePath = path.join(appModule, sourceDir);
+    const packageName = findPackageInDirectory(sourcePath);
+    if (packageName) {
+      return packageName;
+    }
+  }
+  
+  return null;
+}
+
+function findPackageInDirectory(sourcePath) {
+  try {
+    const files = require('fs').readdirSync(sourcePath, { recursive: true });
+    
+    for (const file of files) {
+      if (file.endsWith('.kt') || file.endsWith('.java')) {
+        const filePath = path.join(sourcePath, file);
+        const packageName = extractPackageFromFile(filePath);
+        if (packageName) {
+          return packageName;
+        }
+      }
+    }
+  } catch (error) {
+    coreExports.debug(`Failed to read directory ${sourcePath}: ${error.message}`);
+  }
+  
+  return null;
+}
+
+function updatePackageReferences(appModule, oldPackage, newPackage) {
+  if (!oldPackage || !newPackage || oldPackage === newPackage) {
+    return;
+  }
+  
+  coreExports.info(`Updating package references from ${oldPackage} to ${newPackage}`);
+  
+  // Update source files
+  const sourceDirs = [JAVA_SOURCE_DIR, KOTLIN_SOURCE_DIR];
+  
+  for (const sourceDir of sourceDirs) {
+    const sourcePath = path.join(appModule, sourceDir);
+    updateReferencesInDirectory(sourcePath, oldPackage, newPackage);
+  }
+  
+  // Update build files
+  updateBuildFiles(appModule, oldPackage, newPackage);
+  
+  // Update manifest
+  updateManifest(appModule, oldPackage, newPackage);
+}
+
+function updateReferencesInDirectory(directory, oldPackage, newPackage) {
+  try {
+    const files = require('fs').readdirSync(directory, { recursive: true });
+    
+    for (const file of files) {
+      const filePath = path.join(directory, file);
+      
+      if (require('fs').statSync(filePath).isFile() && 
+          (file.endsWith('.kt') || file.endsWith('.java'))) {
+        updateReferencesInFile(filePath, oldPackage, newPackage);
+      }
+    }
+  } catch (error) {
+    coreExports.debug(`Failed to update references in ${directory}: ${error.message}`);
+  }
+}
+
+function updateReferencesInFile(filePath, oldPackage, newPackage) {
+  try {
+    const content = readFileContent(filePath);
+    const updatedContent = updatePackageReferencesInContent(content, oldPackage, newPackage);
+    
+    if (content !== updatedContent) {
+      writeFileContent(filePath, updatedContent);
+      coreExports.debug(`Updated package references in ${filePath}`);
+    }
+  } catch (error) {
+    coreExports.warning(`Failed to update ${filePath}: ${error.message}`);
+  }
+}
+
+function updatePackageReferencesInContent(content, oldPackage, newPackage) {
+  // Update package declaration
+  content = content.replace(
+    new RegExp(`^package\\s+${escapeRegex(oldPackage)}`, 'm'),
+    `package ${newPackage}`
+  );
+  
+  // Update import statements
+  content = content.replace(
+    new RegExp(`import\\s+${escapeRegex(oldPackage)}`, 'g'),
+    `import ${newPackage}`
+  );
+  
+  // Update qualified class references
+  content = content.replace(
+    new RegExp(`\\b${escapeRegex(oldPackage)}\\.`, 'g'),
+    `${newPackage}.`
+  );
+  
+  return content;
+}
+
+function updateBuildFiles(appModule, oldPackage, newPackage) {
+  const buildFiles = ['build.gradle', 'build.gradle.kts'];
+  
+  for (const buildFile of buildFiles) {
+    const buildPath = path.join(appModule, buildFile);
+    
+    try {
+      if (require('fs').existsSync(buildPath)) {
+        const content = readFileContent(buildPath);
+        const updatedContent = content.replace(
+          new RegExp(`applicationId\\s*=?\\s*["']${escapeRegex(oldPackage)}["']`, 'g'),
+          `applicationId "${newPackage}"`
+        );
+        
+        if (content !== updatedContent) {
+          writeFileContent(buildPath, updatedContent);
+          coreExports.info(`Updated applicationId in ${buildPath}`);
+        }
+      }
+    } catch (error) {
+      coreExports.warning(`Failed to update ${buildPath}: ${error.message}`);
+    }
+  }
+}
+
+function updateManifest(appModule, oldPackage, newPackage) {
+  const manifestPath = path.join(appModule, 'src/main/AndroidManifest.xml');
+  
+  try {
+    if (require('fs').existsSync(manifestPath)) {
+      const content = readFileContent(manifestPath);
+      const updatedContent = content.replace(
+        new RegExp(`package\\s*=\\s*["']${escapeRegex(oldPackage)}["']`, 'g'),
+        `package="${newPackage}"`
+      );
+      
+      if (content !== updatedContent) {
+        writeFileContent(manifestPath, updatedContent);
+        coreExports.info(`Updated package in AndroidManifest.xml`);
+      }
+    }
+  } catch (error) {
+    coreExports.warning(`Failed to update AndroidManifest.xml: ${error.message}`);
+  }
+}
+
+function escapeRegex(string) {
+  return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+/**
+ * Compose theme management utilities
+ */
+
+function updateComposeTheme(appModule, config) {
+  const themeFiles = findComposeThemeFiles(appModule);
+  
+  if (themeFiles.length > 0) {
+    coreExports.info(`Found ${themeFiles.length} existing Compose theme files`);
+    
+    for (const themeFile of themeFiles) {
+      updateExistingComposeTheme(themeFile, config);
+    }
+  } else {
+    coreExports.info('No existing Compose theme files found, creating new ones');
+    createComposeThemeFiles(appModule, config);
+  }
+}
+
+function findComposeThemeFiles(appModule, config) {
+  const themeFiles = [];
+  const searchDirs = [
+    'src/main/java',
+    'src/main/kotlin'
+  ];
+  
+  for (const searchDir of searchDirs) {
+    const sourcePath = path.join(appModule, searchDir);
+    
+    try {
+      const files = require('fs').readdirSync(sourcePath, { recursive: true });
+      
+      for (const file of files) {
+        if ((file.includes('theme') || file.includes('Theme')) && 
+            (file.endsWith('.kt') || file.endsWith('.java'))) {
+          themeFiles.push(path.join(sourcePath, file));
+        }
+      }
+    } catch (error) {
+      coreExports.debug(`Failed to search in ${sourcePath}: ${error.message}`);
+    }
+  }
+  
+  return themeFiles;
+}
+
+function updateExistingComposeTheme(themeFile, config) {
+  try {
+    const content = readFileContent(themeFile);
+    let updatedContent = content;
+    
+    if (themeFile.toLowerCase().includes('color')) {
+      updatedContent = updateColorFile(content, config);
+    } else if (themeFile.toLowerCase().includes('theme')) {
+      updatedContent = updateThemeFile(content, config);
+    }
+    
+    if (content !== updatedContent) {
+      writeFileContent(themeFile, updatedContent);
+      coreExports.info(`Updated ${themeFile}`);
+    }
+  } catch (error) {
+    coreExports.warning(`Failed to update ${themeFile}: ${error.message}`);
+  }
+}
+
+function updateColorFile(content, config) {
+  const theme = config.theme?.light || {};
+  
+  // Add color import if not present
+  if (!content.includes('import androidx.compose.ui.graphics.Color')) {
+    const packageMatch = content.match(/^package\s+[^\n]+/m);
+    if (packageMatch) {
+      content = content.replace(
+        packageMatch[0],
+        `${packageMatch[0]}\n\nimport androidx.compose.ui.graphics.Color`
+      );
+    }
+  }
+  
+  // Update or add color definitions
+  const colorMappings = [
+    { name: 'Primary', value: theme.primary || '#6650a4' },
+    { name: 'Secondary', value: theme.secondary || '#625b71' },
+    { name: 'Tertiary', value: theme.tertiary || '#7D5260' },
+    { name: 'Background', value: theme.background || '#FFFBFE' },
+    { name: 'Surface', value: theme.surface || '#FFFBFE' },
+    { name: 'OnPrimary', value: theme.on_primary || '#FFFFFF' },
+    { name: 'OnSecondary', value: theme.on_secondary || '#FFFFFF' },
+    { name: 'OnTertiary', value: theme.on_tertiary || '#FFFFFF' },
+    { name: 'OnBackground', value: theme.on_background || '#1C1B1F' },
+    { name: 'OnSurface', value: theme.on_surface || '#1C1B1F' }
+  ];
+  
+  for (const color of colorMappings) {
+    const hexValue = hexToComposeColor(color.value);
+    const pattern = new RegExp(`val\\s+${color.name}\\s*=\\s*Color\\([^)]+\\)`, 'g');
+    const replacement = `val ${color.name} = Color(${hexValue})`;
+    
+    if (pattern.test(content)) {
+      content = content.replace(pattern, replacement);
+    } else {
+      // Add new color definition
+      content += `\nval ${color.name} = Color(${hexValue})`;
+    }
+  }
+  
+  return content;
+}
+
+function updateThemeFile(content, config) {
+  const theme = config.theme?.light || {};
+  
+  // Update lightColorScheme
+  const lightColors = [
+    `primary = ${theme.primary ? 'Primary' : 'Color(0xFF6650a4)'}`,
+    `secondary = ${theme.secondary ? 'Secondary' : 'Color(0xFF625b71)'}`,
+    `tertiary = ${theme.tertiary ? 'Tertiary' : 'Color(0xFF7D5260)'}`,
+    `background = ${theme.background ? 'Background' : 'Color(0xFFFFFBFE)'}`,
+    `surface = ${theme.surface ? 'Surface' : 'Color(0xFFFFFBFE)'}`,
+    `onPrimary = ${theme.on_primary ? 'OnPrimary' : 'Color(0xFFFFFFFF)'}`,
+    `onSecondary = ${theme.on_secondary ? 'OnSecondary' : 'Color(0xFFFFFFFF)'}`,
+    `onTertiary = ${theme.on_tertiary ? 'OnTertiary' : 'Color(0xFFFFFFFF)'}`,
+    `onBackground = ${theme.on_background ? 'OnBackground' : 'Color(0xFF1C1B1F)'}`,
+    `onSurface = ${theme.on_surface ? 'OnSurface' : 'Color(0xFF1C1B1F)'}`
+  ];
+  
+  const lightScheme = `lightColorScheme(\n    ${lightColors.join(',\n    ')}\n)`;
+  
+  // Replace existing lightColorScheme
+  const lightPattern = /lightColorScheme\s*\([^)]*\)/s;
+  if (lightPattern.test(content)) {
+    content = content.replace(lightPattern, lightScheme);
+  }
+  
+  return content;
+}
+
+function createComposeThemeFiles(appModule, config) {
+  const packageName = config.package_name || 'com.example.app';
+  const packagePath = packageName.replace(/\./g, '/');
+  
+  // Create theme directory
+  const themeDir = path.join(appModule, 'src/main/kotlin', packagePath, 'ui/theme');
+  ensureDirectoryExists(themeDir);
+  
+  // Create Color.kt
+  createColorFile(themeDir, config, `${packageName}.ui.theme`);
+  
+  // Create Theme.kt
+  createThemeFile(themeDir, config, `${packageName}.ui.theme`);
+  
+  // Create Type.kt
+  createTypographyFile(themeDir, config, `${packageName}.ui.theme`);
+  
+  coreExports.info(`Created Compose theme files in ${themeDir}`);
+}
+
+function createColorFile(themeDir, config, packageName) {
+  const theme = config.theme?.light || {};
+  
+  const content = `package ${packageName}
+
+import androidx.compose.ui.graphics.Color
+
+// Light theme colors
+val Primary = Color(${hexToComposeColor(theme.primary || '#6650a4')})
+val Secondary = Color(${hexToComposeColor(theme.secondary || '#625b71')})
+val Tertiary = Color(${hexToComposeColor(theme.tertiary || '#7D5260')})
+val Background = Color(${hexToComposeColor(theme.background || '#FFFBFE')})
+val Surface = Color(${hexToComposeColor(theme.surface || '#FFFBFE')})
+val OnPrimary = Color(${hexToComposeColor(theme.on_primary || '#FFFFFF')})
+val OnSecondary = Color(${hexToComposeColor(theme.on_secondary || '#FFFFFF')})
+val OnTertiary = Color(${hexToComposeColor(theme.on_tertiary || '#FFFFFF')})
+val OnBackground = Color(${hexToComposeColor(theme.on_background || '#1C1B1F')})
+val OnSurface = Color(${hexToComposeColor(theme.on_surface || '#1C1B1F')})
+
+// Dark theme colors
+val DarkPrimary = Color(${hexToComposeColor(theme.primary || '#D0BCFF')})
+val DarkSecondary = Color(${hexToComposeColor(theme.secondary || '#CCC2DC')})
+val DarkTertiary = Color(${hexToComposeColor(theme.tertiary || '#EFB8C8')})
+val DarkBackground = Color(0xFF121212)
+val DarkSurface = Color(0xFF121212)
+val DarkOnPrimary = Color(0xFF381E72)
+val DarkOnSecondary = Color(0xFF332D41)
+val DarkOnTertiary = Color(0xFF492532)
+val DarkOnBackground = Color(0xFFE6E1E5)
+val DarkOnSurface = Color(0xFFE6E1E5)
+`;
+  
+  writeFileContent(path.join(themeDir, 'Color.kt'), content);
+}
+
+function createThemeFile(themeDir, config, packageName) {
+  const appName = config.app_name?.replace(/\s+/g, '') || 'App';
+  
+  const content = `package ${packageName}
+
+import android.app.Activity
+import android.os.Build
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.darkColorScheme
+import androidx.compose.material3.dynamicDarkColorScheme
+import androidx.compose.material3.dynamicLightColorScheme
+import androidx.compose.material3.lightColorScheme
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
+import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalView
+import androidx.core.view.WindowCompat
+
+private val LightColorScheme = lightColorScheme(
+    primary = Primary,
+    secondary = Secondary,
+    tertiary = Tertiary,
+    background = Background,
+    surface = Surface,
+    onPrimary = OnPrimary,
+    onSecondary = OnSecondary,
+    onTertiary = OnTertiary,
+    onBackground = OnBackground,
+    onSurface = OnSurface
+)
+
+private val DarkColorScheme = darkColorScheme(
+    primary = DarkPrimary,
+    secondary = DarkSecondary,
+    tertiary = DarkTertiary,
+    background = DarkBackground,
+    surface = DarkSurface,
+    onPrimary = DarkOnPrimary,
+    onSecondary = DarkOnSecondary,
+    onTertiary = DarkOnTertiary,
+    onBackground = DarkOnBackground,
+    onSurface = DarkOnSurface
+)
+
+@Composable
+fun ${appName}Theme(
+    darkTheme: Boolean = isSystemInDarkTheme(),
+    dynamicColor: Boolean = false, // Set to false to use custom colors
+    content: @Composable () -> Unit
+) {
+    val colorScheme = when {
+        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
+            val context = LocalContext.current
+            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
+        }
+        darkTheme -> DarkColorScheme
+        else -> LightColorScheme
+    }
+    val view = LocalView.current
+    if (!view.isInEditMode) {
+        SideEffect {
+            val window = (view.context as Activity).window
+            window.statusBarColor = colorScheme.primary.toArgb()
+            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = darkTheme
+        }
+    }
+
+    MaterialTheme(
+        colorScheme = colorScheme,
+        typography = Typography,
+        content = content
+    )
+}
+`;
+  
+  writeFileContent(path.join(themeDir, 'Theme.kt'), content);
+}
+
+function createTypographyFile(themeDir, config, packageName) {
+  const content = `package ${packageName}
+
+import androidx.compose.material3.Typography
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.sp
+
+// Set of Material typography styles to start with
+val Typography = Typography(
+    bodyLarge = TextStyle(
+        fontFamily = FontFamily.Default,
+        fontWeight = FontWeight.Normal,
+        fontSize = 16.sp,
+        lineHeight = 24.sp,
+        letterSpacing = 0.5.sp
+    ),
+    titleLarge = TextStyle(
+        fontFamily = FontFamily.Default,
+        fontWeight = FontWeight.Normal,
+        fontSize = 22.sp,
+        lineHeight = 28.sp,
+        letterSpacing = 0.sp
+    ),
+    labelSmall = TextStyle(
+        fontFamily = FontFamily.Default,
+        fontWeight = FontWeight.Medium,
+        fontSize = 11.sp,
+        lineHeight = 16.sp,
+        letterSpacing = 0.5.sp
+    )
+)
+`;
+  
+  writeFileContent(path.join(themeDir, 'Type.kt'), content);
+}
+
+function hexToComposeColor(hexColor) {
+  // Remove # if present
+  hexColor = hexColor.replace('#', '');
+  
+  // Add alpha channel if not present (ARGB format)
+  if (hexColor.length === 6) {
+    hexColor = 'FF' + hexColor;
+  }
+  
+  return `0x${hexColor.toUpperCase()}`;
+}
+
+/**
+ * Android resource management utilities
+ */
+
+function updateAppName(appModule, config) {
+  const appName = config.app_name;
+  if (!appName) {
+    coreExports.info('No app name specified, skipping app name update');
+    return;
+  }
+  
+  const stringsPath = path.join(appModule, 'src/main/res/values/strings.xml');
+  
+  try {
+    let content;
+    
+    if (require('fs').existsSync(stringsPath)) {
+      content = readFileContent(stringsPath);
+    } else {
+      // Create new strings.xml
+      content = `<?xml version="1.0" encoding="utf-8"?>
+<resources>
+</resources>`;
+      ensureDirectoryExists(path.dirname(stringsPath));
+    }
+    
+    // Update app_name
+    const appNamePattern = /<string\s+name="app_name"[^>]*>.*?<\/string>/;
+    const appNameReplacement = `<string name="app_name">${escapeXml(appName)}</string>`;
+    
+    if (appNamePattern.test(content)) {
+      content = content.replace(appNamePattern, appNameReplacement);
+    } else {
+      // Add app_name to resources
+      content = content.replace(
+        '</resources>',
+        `    ${appNameReplacement}\n</resources>`
+      );
+    }
+    
+    writeFileContent(stringsPath, content);
+    coreExports.info(`✓ Updated app name to: ${appName}`);
+    
+  } catch (error) {
+    coreExports.warning(`Failed to update app name: ${error.message}`);
+  }
+}
+
+function updateXmlColors(appModule, config) {
+  const theme = config.theme?.light;
+  if (!theme) {
+    coreExports.info('No theme configuration found, skipping XML colors update');
+    return;
+  }
+  
+  const colorsPath = path.join(appModule, 'src/main/res/values/colors.xml');
+  
+  const primaryColor = theme.primary || '#6650a4';
+  const secondaryColor = theme.secondary || '#625b71';
+  const backgroundColor = theme.background || '#FFFBFE';
+  const surfaceColor = theme.surface || '#FFFBFE';
+  
+  const colorsContent = `<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Brand Colors -->
+    <color name="primary_color">${primaryColor}</color>
+    <color name="secondary_color">${secondaryColor}</color>
+    <color name="background_color">${backgroundColor}</color>
+    <color name="surface_color">${surfaceColor}</color>
+    
+    <!-- Material Design Colors (for compatibility) -->
+    <color name="purple_200">${primaryColor}</color>
+    <color name="purple_500">${primaryColor}</color>
+    <color name="purple_700">${secondaryColor}</color>
+    <color name="teal_200">${secondaryColor}</color>
+    <color name="teal_700">${secondaryColor}</color>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    
+    <!-- On Colors -->
+    <color name="on_primary">${theme.on_primary || '#FFFFFF'}</color>
+    <color name="on_secondary">${theme.on_secondary || '#FFFFFF'}</color>
+    <color name="on_background">${theme.on_background || '#1C1B1F'}</color>
+    <color name="on_surface">${theme.on_surface || '#1C1B1F'}</color>
+</resources>`;
+  
+  try {
+    ensureDirectoryExists(path.dirname(colorsPath));
+    writeFileContent(colorsPath, colorsContent);
+    coreExports.info(`✓ Updated XML colors: primary=${primaryColor}, secondary=${secondaryColor}`);
+  } catch (error) {
+    coreExports.warning(`Failed to update XML colors: ${error.message}`);
+  }
+}
+
+function createThemeXml(appModule, config) {
+  const themeName = generateThemeName(config);
+  const themesPath = path.join(appModule, 'src/main/res/values/themes.xml');
+  
+  // Detect existing theme parent
+  const parentTheme = detectExistingThemeParent(appModule) || 'Theme.Material3.DayNight';
+  
+  const themeContent = `<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme -->
+    <style name="${themeName}" parent="${parentTheme}">
+        <!-- Customize your theme here -->
+        <item name="colorPrimary">@color/primary_color</item>
+        <item name="colorSecondary">@color/secondary_color</item>
+        <item name="android:colorBackground">@color/background_color</item>
+        <item name="colorSurface">@color/surface_color</item>
+        <item name="colorOnPrimary">@color/on_primary</item>
+        <item name="colorOnSecondary">@color/on_secondary</item>
+        <item name="colorOnBackground">@color/on_background</item>
+        <item name="colorOnSurface">@color/on_surface</item>
+    </style>
+    
+    <style name="${themeName}.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+    
+    <style name="${themeName}.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+    
+    <style name="${themeName}.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+</resources>`;
+  
+  try {
+    ensureDirectoryExists(path.dirname(themesPath));
+    writeFileContent(themesPath, themeContent);
+    
+    // Update manifest to use the new theme
+    updateManifestTheme(appModule, themeName);
+    
+    coreExports.info(`✓ Created theme: ${themeName}`);
+  } catch (error) {
+    coreExports.warning(`Failed to create theme XML: ${error.message}`);
+  }
+}
+
+function generateThemeName(config) {
+  const appName = config.app_name || config.name || 'App';
+  const cleanName = appName.replace(/\s+/g, '').replace(/[^a-zA-Z0-9]/g, '');
+  return `Theme.${cleanName}`;
+}
+
+function detectExistingThemeParent(appModule) {
+  const themesPath = path.join(appModule, 'src/main/res/values/themes.xml');
+  
+  try {
+    if (require('fs').existsSync(themesPath)) {
+      const content = readFileContent(themesPath);
+      
+      // Look for existing parent themes
+      const parentMatch = content.match(/parent="([^"]+)"/);
+      if (parentMatch) {
+        return parentMatch[1];
+      }
+    }
+  } catch (error) {
+    coreExports.debug(`Failed to detect existing theme parent: ${error.message}`);
+  }
+  
+  return null;
+}
+
+function updateManifestTheme(appModule, themeName) {
+  const manifestPath = path.join(appModule, 'src/main/AndroidManifest.xml');
+  
+  try {
+    if (require('fs').existsSync(manifestPath)) {
+      const content = readFileContent(manifestPath);
+      
+      // Update application theme
+      const updatedContent = content.replace(
+        /android:theme="[^"]*"/,
+        `android:theme="@style/${themeName}"`
+      );
+      
+      if (content !== updatedContent) {
+        writeFileContent(manifestPath, updatedContent);
+        coreExports.info(`✓ Updated manifest theme to: ${themeName}`);
+      }
+    }
+  } catch (error) {
+    coreExports.warning(`Failed to update manifest theme: ${error.message}`);
+  }
+}
+
+function updateApplicationId(appModule, packageName) {
+  if (!packageName) {
+    coreExports.info('No package name specified, skipping application ID update');
+    return;
+  }
+  
+  const buildFiles = ['build.gradle', 'build.gradle.kts'];
+  
+  for (const buildFile of buildFiles) {
+    const buildPath = path.join(appModule, buildFile);
+    
+    try {
+      if (require('fs').existsSync(buildPath)) {
+        const content = readFileContent(buildPath);
+        
+        // Update applicationId
+        const updatedContent = content.replace(
+          /applicationId\s*=?\s*["'][^"']*["']/g,
+          `applicationId "${packageName}"`
+        );
+        
+        if (content !== updatedContent) {
+          writeFileContent(buildPath, updatedContent);
+          coreExports.info(`✓ Updated applicationId to: ${packageName}`);
+          return; // Only update one build file
+        }
+      }
+    } catch (error) {
+      coreExports.warning(`Failed to update ${buildPath}: ${error.message}`);
+    }
+  }
+}
+
+function escapeXml(text) {
+  return text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&apos;');
+}
+
+/**
+ * Android app icon sizes and their corresponding folder names
+ */
+const ICON_SIZES = {
+  'mdpi': 48,
+  'hdpi': 72,
+  'xhdpi': 96,
+  'xxhdpi': 144,
+  'xxxhdpi': 192
+};
+
+/**
+ * Generate app icons from a logo file
+ * @param {string} logoPath - Path to the logo file
+ * @param {string} appModule - Path to the Android app module
+ * @returns {Promise<boolean>} - Success status
+ */
+async function generateAppIcons(logoPath, appModule) {
+  try {
+    if (!logoPath || !fs.existsSync(logoPath)) {
+      coreExports.warning("Logo file not found, skipping icon generation");
+      return false;
+    }
+
+    coreExports.info("=== Generating App Icons ===");
+    coreExports.info(`Source logo: ${logoPath}`);
+
+    // Check if ImageMagick or other image processing tools are available
+    const hasImageMagick = await checkImageMagick();
+    
+    if (!hasImageMagick) {
+      // Fallback: Copy the original logo as the main icon
+      await copyLogoAsIcon(logoPath, appModule);
+      return true;
+    }
+
+    // Generate icons for all density folders
+    let successCount = 0;
+    const totalSizes = Object.keys(ICON_SIZES).length;
+
+    for (const [density, size] of Object.entries(ICON_SIZES)) {
+      try {
+        await generateIconForDensity(logoPath, appModule, density, size);
+        successCount++;
+        coreExports.info(`✓ Generated ${density} icon (${size}x${size})`);
+      } catch (error) {
+        coreExports.warning(`Failed to generate ${density} icon: ${error.message}`);
+      }
+    }
+
+    if (successCount > 0) {
+      coreExports.info(`✓ Generated ${successCount}/${totalSizes} app icons successfully`);
+      return true;
+    } else {
+      coreExports.warning("Failed to generate any app icons");
+      return false;
+    }
+
+  } catch (error) {
+    coreExports.error(`Icon generation failed: ${error.message}`);
+    return false;
+  }
+}
+
+/**
+ * Check if ImageMagick is available for image processing
+ * @returns {Promise<boolean>}
+ */
+async function checkImageMagick() {
+  try {
+    const { exec } = await import('child_process');
+    const { promisify } = await import('util');
+    const execAsync = promisify(exec);
+    
+    await execAsync('convert --version');
+    return true;
+  } catch (error) {
+    coreExports.info("ImageMagick not available, using fallback icon generation");
+    return false;
+  }
+}
+
+/**
+ * Generate icon for a specific density using ImageMagick
+ * @param {string} logoPath - Path to the source logo
+ * @param {string} appModule - Path to the Android app module
+ * @param {string} density - Density folder name (mdpi, hdpi, etc.)
+ * @param {number} size - Icon size in pixels
+ */
+async function generateIconForDensity(logoPath, appModule, density, size) {
+  const { exec } = await import('child_process');
+  const { promisify } = await import('util');
+  const execAsync = promisify(exec);
+
+  // Create density folder path
+  const densityFolder = path.join(appModule, 'src', 'main', 'res', `mipmap-${density}`);
+  const iconPath = path.join(densityFolder, 'ic_launcher.png');
+
+  // Create directory if it doesn't exist
+  if (!fs.existsSync(densityFolder)) {
+    fs.mkdirSync(densityFolder, { recursive: true });
+  }
+
+  // Generate icon using ImageMagick
+  const command = `convert "${logoPath}" -resize ${size}x${size} -background transparent "${iconPath}"`;
+  await execAsync(command);
+
+  // Verify the icon was created
+  if (!fs.existsSync(iconPath)) {
+    throw new Error(`Icon file was not created: ${iconPath}`);
+  }
+}
+
+/**
+ * Fallback: Copy the logo as the main app icon
+ * @param {string} logoPath - Path to the source logo
+ * @param {string} appModule - Path to the Android app module
+ */
+async function copyLogoAsIcon(logoPath, appModule) {
+  try {
+    // Copy to the main mipmap folder
+    const mipmapFolder = path.join(appModule, 'src', 'main', 'res', 'mipmap-hdpi');
+    const iconPath = path.join(mipmapFolder, 'ic_launcher.png');
+
+    // Create directory if it doesn't exist
+    if (!fs.existsSync(mipmapFolder)) {
+      fs.mkdirSync(mipmapFolder, { recursive: true });
+    }
+
+    // Copy the logo file
+    fs.copyFileSync(logoPath, iconPath);
+    
+    coreExports.info(`✓ Copied logo as app icon: ${iconPath}`);
+
+    // Also copy to other density folders for consistency
+    for (const density of Object.keys(ICON_SIZES)) {
+      if (density !== 'hdpi') {
+        const densityFolder = path.join(appModule, 'src', 'main', 'res', `mipmap-${density}`);
+        const densityIconPath = path.join(densityFolder, 'ic_launcher.png');
+        
+        if (!fs.existsSync(densityFolder)) {
+          fs.mkdirSync(densityFolder, { recursive: true });
+        }
+        
+        fs.copyFileSync(logoPath, densityIconPath);
+      }
+    }
+
+  } catch (error) {
+    throw new Error(`Failed to copy logo as icon: ${error.message}`);
+  }
+}
+
+/**
+ * Generate adaptive icons for Android 8.0+ (API level 26+)
+ * @param {string} logoPath - Path to the source logo
+ * @param {string} appModule - Path to the Android app module
+ * @param {string} backgroundColor - Background color for adaptive icon
+ * @returns {Promise<boolean>} - Success status
+ */
+async function generateAdaptiveIcons(logoPath, appModule, backgroundColor = '#FFFFFF') {
+  try {
+    if (!logoPath || !fs.existsSync(logoPath)) {
+      coreExports.warning("Logo file not found, skipping adaptive icon generation");
+      return false;
+    }
+
+    coreExports.info("=== Generating Adaptive Icons ===");
+
+    // Create adaptive icon XML files
+    await createAdaptiveIconXml(appModule, backgroundColor);
+    
+    // Generate foreground layer (the logo)
+    await generateForegroundLayer(logoPath, appModule);
+
+    coreExports.info("✓ Adaptive icons generated successfully");
+    return true;
+
+  } catch (error) {
+    coreExports.error(`Adaptive icon generation failed: ${error.message}`);
+    return false;
+  }
+}
+
+/**
+ * Create adaptive icon XML configuration
+ * @param {string} appModule - Path to the Android app module
+ * @param {string} backgroundColor - Background color
+ */
+async function createAdaptiveIconXml(appModule, backgroundColor) {
+  const mipmapAnydpiV26 = path.join(appModule, 'src', 'main', 'res', 'mipmap-anydpi-v26');
+  
+  if (!fs.existsSync(mipmapAnydpiV26)) {
+    fs.mkdirSync(mipmapAnydpiV26, { recursive: true });
+  }
+
+  // Create ic_launcher.xml
+  const adaptiveIconXml = `<?xml version="1.0" encoding="utf-8"?>
+<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
+    <background android:drawable="@color/ic_launcher_background"/>
+    <foreground android:drawable="@mipmap/ic_launcher_foreground"/>
+</adaptive-icon>`;
+
+  fs.writeFileSync(path.join(mipmapAnydpiV26, 'ic_launcher.xml'), adaptiveIconXml);
+
+  // Create background color resource
+  const colorsDir = path.join(appModule, 'src', 'main', 'res', 'values');
+  if (!fs.existsSync(colorsDir)) {
+    fs.mkdirSync(colorsDir, { recursive: true });
+  }
+
+  const colorsPath = path.join(colorsDir, 'colors.xml');
+  let colorsContent = '';
+
+  if (fs.existsSync(colorsPath)) {
+    colorsContent = fs.readFileSync(colorsPath, 'utf8');
+  } else {
+    colorsContent = '<?xml version="1.0" encoding="utf-8"?>\n<resources>\n</resources>';
+  }
+
+  // Add background color if not exists
+  if (!colorsContent.includes('ic_launcher_background')) {
+    const colorLine = `    <color name="ic_launcher_background">${backgroundColor}</color>`;
+    colorsContent = colorsContent.replace('</resources>', `${colorLine}\n</resources>`);
+    fs.writeFileSync(colorsPath, colorsContent);
+  }
+}
+
+/**
+ * Generate foreground layer for adaptive icons
+ * @param {string} logoPath - Path to the source logo
+ * @param {string} appModule - Path to the Android app module
+ */
+async function generateForegroundLayer(logoPath, appModule) {
+  // Generate foreground icons for different densities
+  for (const [density, size] of Object.entries(ICON_SIZES)) {
+    const densityFolder = path.join(appModule, 'src', 'main', 'res', `mipmap-${density}`);
+    const foregroundPath = path.join(densityFolder, 'ic_launcher_foreground.png');
+
+    if (!fs.existsSync(densityFolder)) {
+      fs.mkdirSync(densityFolder, { recursive: true });
+    }
+
+    // For foreground layer, use 108dp total size with 72dp safe area
+    const foregroundSize = Math.round(size * 1.5); // 108/72 ratio
+    
+    const hasImageMagick = await checkImageMagick();
+    
+    if (hasImageMagick) {
+      try {
+        const { exec } = await import('child_process');
+        const { promisify } = await import('util');
+        const execAsync = promisify(exec);
+
+        // Create foreground with padding for safe area
+        const command = `convert "${logoPath}" -resize ${size}x${size} -background transparent -gravity center -extent ${foregroundSize}x${foregroundSize} "${foregroundPath}"`;
+        await execAsync(command);
+      } catch (error) {
+        // Fallback: copy the original logo
+        fs.copyFileSync(logoPath, foregroundPath);
+      }
+    } else {
+      // Fallback: copy the original logo
+      fs.copyFileSync(logoPath, foregroundPath);
+    }
+  }
+}
+
 async function downloadLogo(logoUrl, apiKey, outputPath) {
   try {
     coreExports.info(`Downloading logo from: ${logoUrl}`);
@@ -27282,7 +28373,7 @@ async function downloadLogo(logoUrl, apiKey, outputPath) {
 
     // Create final output path with proper extension
     const finalOutputPath = `${outputPath}${extension}`;
-    const outputDir = require$$1.dirname(finalOutputPath);
+    const outputDir = path.dirname(finalOutputPath);
     
     // Create output directory if it doesn't exist
     if (!fs.existsSync(outputDir)) {
@@ -27331,6 +28422,67 @@ async function handleLogoDownload(flavor, apiKey) {
   }
 }
 
+async function applyBranding(flavor, logoPath) {
+  try {
+    coreExports.info("=== Applying Branding ===");
+    
+    // Find Android app module
+    const appModule = findAndroidAppModule();
+    coreExports.info(`Using Android app module: ${appModule}`);
+    
+    // Detect existing package name
+    const existingPackage = detectExistingPackage(appModule);
+    const newPackage = flavor.package_name;
+    
+    if (existingPackage && newPackage && existingPackage !== newPackage) {
+      coreExports.info(`Updating package name from ${existingPackage} to ${newPackage}`);
+      updatePackageReferences(appModule, existingPackage, newPackage);
+    }
+    
+    // Update application ID in build.gradle
+    if (newPackage) {
+      updateApplicationId(appModule, newPackage);
+    }
+    
+    // Update app name
+    if (flavor.app_name) {
+      updateAppName(appModule, flavor);
+    }
+    
+    // Update colors and theme
+    if (flavor.theme) {
+      // Update XML colors for compatibility
+      updateXmlColors(appModule, flavor);
+      
+      // Update Compose theme
+      updateComposeTheme(appModule, flavor);
+      
+      // Create theme XML
+      createThemeXml(appModule, flavor);
+    }
+    
+    // Generate app icons from logo
+    if (logoPath) {
+      coreExports.info("=== Generating App Icons ===");
+      const iconSuccess = await generateAppIcons(logoPath, appModule);
+      if (iconSuccess) {
+        coreExports.info("✓ App icons generated successfully");
+        
+        // Also generate adaptive icons for modern Android
+        const backgroundColor = flavor.theme?.light?.background || '#FFFFFF';
+        await generateAdaptiveIcons(logoPath, appModule, backgroundColor);
+      }
+    } else {
+      coreExports.info("No logo available - skipping icon generation");
+    }
+    
+    coreExports.info("✓ Branding applied successfully!");
+    
+  } catch (error) {
+    throw new Error(`Failed to apply branding: ${error.message}`);
+  }
+}
+
 try {
   // Get inputs
   const apiKey = coreExports.getInput("project-api-key");
@@ -27364,6 +28516,11 @@ try {
     if (theme.primary) coreExports.info(`Primary Color: ${theme.primary}`);
     if (theme.secondary) coreExports.info(`Secondary Color: ${theme.secondary}`);
     if (theme.background) coreExports.info(`Background Color: ${theme.background}`);
+    if (theme.surface) coreExports.info(`Surface Color: ${theme.surface}`);
+    if (theme.on_primary) coreExports.info(`On Primary Color: ${theme.on_primary}`);
+    if (theme.on_secondary) coreExports.info(`On Secondary Color: ${theme.on_secondary}`);
+    if (theme.on_background) coreExports.info(`On Background Color: ${theme.on_background}`);
+    if (theme.on_surface) coreExports.info(`On Surface Color: ${theme.on_surface}`);
   }
 
   // Download logo if available
@@ -27371,6 +28528,9 @@ try {
   if (logoPath) {
     coreExports.setOutput("logo-path", logoPath);
   }
+
+  // Apply all branding changes
+  await applyBranding(flavor, logoPath);
 
   // Set outputs
   coreExports.setOutput("status", "success");

@@ -1,6 +1,11 @@
 import * as core from "@actions/core";
 import * as path from "path";
 import * as fs from "fs";
+import { findAndroidAppModule } from './utils/fileUtils.js';
+import { detectExistingPackage, updatePackageReferences } from './utils/packageUtils.js';
+import { updateComposeTheme } from './utils/composeUtils.js';
+import { updateAppName, updateXmlColors, createThemeXml, updateApplicationId } from './utils/androidUtils.js';
+import { generateAppIcons, generateAdaptiveIcons } from './utils/iconUtils.js';
 
 async function downloadLogo(logoUrl, apiKey, outputPath) {
   try {
@@ -85,6 +90,67 @@ async function handleLogoDownload(flavor, apiKey) {
   }
 }
 
+async function applyBranding(flavor, logoPath) {
+  try {
+    core.info("=== Applying Branding ===");
+    
+    // Find Android app module
+    const appModule = findAndroidAppModule();
+    core.info(`Using Android app module: ${appModule}`);
+    
+    // Detect existing package name
+    const existingPackage = detectExistingPackage(appModule);
+    const newPackage = flavor.package_name;
+    
+    if (existingPackage && newPackage && existingPackage !== newPackage) {
+      core.info(`Updating package name from ${existingPackage} to ${newPackage}`);
+      updatePackageReferences(appModule, existingPackage, newPackage);
+    }
+    
+    // Update application ID in build.gradle
+    if (newPackage) {
+      updateApplicationId(appModule, newPackage);
+    }
+    
+    // Update app name
+    if (flavor.app_name) {
+      updateAppName(appModule, flavor);
+    }
+    
+    // Update colors and theme
+    if (flavor.theme) {
+      // Update XML colors for compatibility
+      updateXmlColors(appModule, flavor);
+      
+      // Update Compose theme
+      updateComposeTheme(appModule, flavor);
+      
+      // Create theme XML
+      createThemeXml(appModule, flavor);
+    }
+    
+    // Generate app icons from logo
+    if (logoPath) {
+      core.info("=== Generating App Icons ===");
+      const iconSuccess = await generateAppIcons(logoPath, appModule);
+      if (iconSuccess) {
+        core.info("✓ App icons generated successfully");
+        
+        // Also generate adaptive icons for modern Android
+        const backgroundColor = flavor.theme?.light?.background || '#FFFFFF';
+        await generateAdaptiveIcons(logoPath, appModule, backgroundColor);
+      }
+    } else {
+      core.info("No logo available - skipping icon generation");
+    }
+    
+    core.info("✓ Branding applied successfully!");
+    
+  } catch (error) {
+    throw new Error(`Failed to apply branding: ${error.message}`);
+  }
+}
+
 try {
   // Get inputs
   const apiKey = core.getInput("project-api-key");
@@ -118,6 +184,11 @@ try {
     if (theme.primary) core.info(`Primary Color: ${theme.primary}`);
     if (theme.secondary) core.info(`Secondary Color: ${theme.secondary}`);
     if (theme.background) core.info(`Background Color: ${theme.background}`);
+    if (theme.surface) core.info(`Surface Color: ${theme.surface}`);
+    if (theme.on_primary) core.info(`On Primary Color: ${theme.on_primary}`);
+    if (theme.on_secondary) core.info(`On Secondary Color: ${theme.on_secondary}`);
+    if (theme.on_background) core.info(`On Background Color: ${theme.on_background}`);
+    if (theme.on_surface) core.info(`On Surface Color: ${theme.on_surface}`);
   }
 
   // Download logo if available
@@ -125,6 +196,9 @@ try {
   if (logoPath) {
     core.setOutput("logo-path", logoPath);
   }
+
+  // Apply all branding changes
+  await applyBranding(flavor, logoPath);
 
   // Set outputs
   core.setOutput("status", "success");

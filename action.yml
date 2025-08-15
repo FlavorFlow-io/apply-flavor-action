@@ -1,5 +1,14 @@
 name: Apply Branding
-description: Apply branding configuration for a specific flavor automatically from environment variables
+description: Apply branding configuration for a specific flavor
+
+inputs:
+  flavor:
+    description: 'The flavor JSON object containing branding information'
+    required: true
+
+  project-api-key:
+    description: 'The project API key to fetch additional resources if needed'
+    required: true
 
 outputs:
   status:

@@ -27247,60 +27247,13 @@ function requireCore () {
 var coreExports = requireCore();
 
 try {
-  // Get flavor data from environment variables
-  const flavorJson = process.env.FLAVOR_JSON;
-  const flavorName = process.env.FLAVOR_NAME;
-  const flavorId = process.env.FLAVOR_ID;
   
-  if (!flavorJson) {
-    throw new Error("FLAVOR_JSON environment variable is required");
-  }
+  // Get inputs
+  const apiKey = coreExports.getInput("project-api-key");
+  const flavorJson = coreExports.getInput("flavor");
 
-  coreExports.info("=== Applying Branding Configuration ===");
-  
-  // Parse and display the flavor JSON
-  let flavor;
-  try {
-    flavor = JSON.parse(flavorJson);
-  } catch (parseError) {
-    throw new Error(`Invalid flavor JSON in FLAVOR_JSON environment variable: ${parseError.message}`);
-  }
-
-  coreExports.info(`Flavor Name: ${flavorName || flavor.name || flavor.id || 'Unknown'}`);
-  coreExports.info(`Flavor ID: ${flavorId || flavor.id || 'Unknown'}`);
-  coreExports.info("Flavor Configuration:");
-  coreExports.info(JSON.stringify(flavor, null, 2));
-
-  // Log specific branding properties if they exist
-  if (flavor.branding) {
-    coreExports.info("=== Branding Details ===");
-    if (flavor.branding.appName) {
-      coreExports.info(`App Name: ${flavor.branding.appName}`);
-    }
-    if (flavor.branding.packageName) {
-      coreExports.info(`Package Name: ${flavor.branding.packageName}`);
-    }
-    if (flavor.branding.colors) {
-      coreExports.info(`Colors: ${JSON.stringify(flavor.branding.colors, null, 2)}`);
-    }
-    if (flavor.branding.logo) {
-      coreExports.info(`Logo URL: ${flavor.branding.logo}`);
-    }
-    if (flavor.branding.theme) {
-      coreExports.info(`Theme: ${JSON.stringify(flavor.branding.theme, null, 2)}`);
-    }
-  }
-
-  // Log all available environment variables for debugging
-  coreExports.info("=== Environment Variables ===");
-  coreExports.info(`FLAVOR_JSON: ${flavorJson ? 'Set' : 'Not set'}`);
-  coreExports.info(`FLAVOR_NAME: ${flavorName || 'Not set'}`);
-  coreExports.info(`FLAVOR_ID: ${flavorId || 'Not set'}`);
-
-  // Set outputs
-  coreExports.setOutput("status", "success");
-  coreExports.info("Branding configuration applied successfully!");
-
+  coreExports.info(`Applying branding for flavor: ${flavorJson}`);
+  // TODO: Implement branding application logic
 } catch (error) {
   coreExports.setFailed(error.message);
 }

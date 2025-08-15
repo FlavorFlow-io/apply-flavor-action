@@ -27626,19 +27626,19 @@ function updateReferencesInFile(filePath, oldPackage, newPackage) {
 function updatePackageReferencesInContent(content, oldPackage, newPackage) {
   // Update package declaration
   content = content.replace(
-    new RegExp(`^package\\s+${escapeRegex(oldPackage)}`, 'm'),
+    new RegExp(`^package\\s+${escapeRegex$1(oldPackage)}`, 'm'),
     `package ${newPackage}`
   );
   
   // Update import statements
   content = content.replace(
-    new RegExp(`import\\s+${escapeRegex(oldPackage)}`, 'g'),
+    new RegExp(`import\\s+${escapeRegex$1(oldPackage)}`, 'g'),
     `import ${newPackage}`
   );
   
   // Update qualified class references
   content = content.replace(
-    new RegExp(`\\b${escapeRegex(oldPackage)}\\.`, 'g'),
+    new RegExp(`\\b${escapeRegex$1(oldPackage)}\\.`, 'g'),
     `${newPackage}.`
   );
   
@@ -27655,7 +27655,7 @@ function updateBuildFiles(appModule, oldPackage, newPackage) {
       if (fs.existsSync(buildPath)) {
         const content = readFileContent(buildPath);
         const updatedContent = content.replace(
-          new RegExp(`applicationId\\s*=?\\s*["']${escapeRegex(oldPackage)}["']`, 'g'),
+          new RegExp(`applicationId\\s*=?\\s*["']${escapeRegex$1(oldPackage)}["']`, 'g'),
           `applicationId "${newPackage}"`
         );
         
@@ -27677,7 +27677,7 @@ function updateManifest(appModule, oldPackage, newPackage) {
     if (fs.existsSync(manifestPath)) {
       const content = readFileContent(manifestPath);
       const updatedContent = content.replace(
-        new RegExp(`package\\s*=\\s*["']${escapeRegex(oldPackage)}["']`, 'g'),
+        new RegExp(`package\\s*=\\s*["']${escapeRegex$1(oldPackage)}["']`, 'g'),
         `package="${newPackage}"`
       );
       
@@ -27691,7 +27691,7 @@ function updateManifest(appModule, oldPackage, newPackage) {
   }
 }
 
-function escapeRegex(string) {
+function escapeRegex$1(string) {
   return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
@@ -28529,42 +28529,63 @@ function updateApplicationId(appModule, packageName) {
     return;
   }
   
+  // First, we need to find the current package name to replace
+  let currentPackageName = null;
+  
   const buildFiles = ['build.gradle', 'build.gradle.kts'];
   
+  // Find current package name from build files
+  for (const buildFile of buildFiles) {
+    const buildPath = path.join(appModule, buildFile);
+    
+    try {
+      if (require('fs').existsSync(buildPath)) {
+        const content = readFileContent(buildPath);
+        
+        // Look for current applicationId
+        const appIdMatch = content.match(/applicationId\s*=?\s*["']([^"']+)["']/);
+        if (appIdMatch) {
+          currentPackageName = appIdMatch[1];
+          break;
+        }
+        
+        // Look for current namespace
+        const namespaceMatch = content.match(/namespace\s*=\s*["']([^"']+)["']/);
+        if (namespaceMatch) {
+          currentPackageName = namespaceMatch[1];
+          break;
+        }
+      }
+    } catch (error) {
+      continue;
+    }
+  }
+  
+  if (!currentPackageName) {
+    coreExports.warning('Could not find current package name in build files');
+    return;
+  }
+  
+  if (currentPackageName === packageName) {
+    coreExports.info(`Package name already set to: ${packageName}`);
+    return;
+  }
+  
+  // Now replace all occurrences of the old package name with the new one
   for (const buildFile of buildFiles) {
     const buildPath = path.join(appModule, buildFile);
     
     try {
       if (require('fs').existsSync(buildPath)) {
         let content = readFileContent(buildPath);
-        let updated = false;
+        const originalContent = content;
         
-        // Update applicationId
-        const newContentAppId = content.replace(
-          /applicationId\s*=?\s*["'][^"']*["']/g,
-          `applicationId "${packageName}"`
-        );
+        // Replace all occurrences of the old package name with the new one
+        content = content.replace(new RegExp(escapeRegex(currentPackageName), 'g'), packageName);
         
-        if (content !== newContentAppId) {
-          content = newContentAppId;
-          updated = true;
-          coreExports.info(`✓ Updated applicationId to: ${packageName}`);
-        }
-        
-        // Update namespace (for newer Gradle versions)
-        const newContentNamespace = content.replace(
-          /namespace\s*=\s*["'][^"']*["']/g,
-          `namespace = "${packageName}"`
-        );
-        
-        if (content !== newContentNamespace) {
-          content = newContentNamespace;
-          updated = true;
-          coreExports.info(`✓ Updated namespace to: ${packageName}`);
-        }
-        
-        if (updated) {
+        if (content !== originalContent) {
           writeFileContent(buildPath, content);
+          coreExports.info(`✓ Updated package name from ${currentPackageName} to ${packageName} in ${buildFile}`);
           return; // Only update one build file
         }
       }
@@ -28572,6 +28593,10 @@ function updateApplicationId(appModule, packageName) {
       coreExports.warning(`Failed to update ${buildPath}: ${error.message}`);
     }
   }
+}
+
+function escapeRegex(string) {
+  return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
 function escapeXml(text) {

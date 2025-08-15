@@ -351,13 +351,13 @@ function updateThemeFile(content, config) {
   
   // Set dynamicColor to false by default to use custom colors
   content = content.replace(
-    /dynamicColor:\s*Boolean\s*=\s*true/,
-    'dynamicColor: Boolean = false, // Set to false to use custom colors'
+    /dynamicColor:\s*Boolean\s*=\s*true/g,
+    'dynamicColor: Boolean = false'
   );
   
   // Update darkTheme parameter based on availability of dark theme in config
   content = content.replace(
-    /darkTheme:\s*Boolean\s*=\s*[^,)]+/g,
+    /darkTheme:\s*Boolean\s*=\s*(?:true|false|isSystemInDarkTheme\(\))/g,
     `darkTheme: Boolean = ${darkThemeDefault}`
   );
   

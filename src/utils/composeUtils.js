@@ -295,6 +295,9 @@ function updateColorVariables(content, config) {
 }
 
 function updateThemeFile(content, config) {
+  const hasDarkTheme = config.theme?.dark && Object.keys(config.theme.dark).length > 0;
+  const darkThemeDefault = hasDarkTheme ? 'isSystemInDarkTheme()' : 'false';
+  
   // Use the robust approach from Python script
   content = updateThemeKtColors(content, config);
   
@@ -302,6 +305,12 @@ function updateThemeFile(content, config) {
   content = content.replace(
     /dynamicColor:\s*Boolean\s*=\s*true/,
     'dynamicColor: Boolean = false, // Set to false to use custom colors'
+  );
+  
+  // Update darkTheme parameter based on availability of dark theme in config
+  content = content.replace(
+    /darkTheme:\s*Boolean\s*=\s*[^,)]+/g,
+    `darkTheme: Boolean = ${darkThemeDefault}`
   );
   
   return content;

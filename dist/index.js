@@ -28649,12 +28649,12 @@ async function generateAppIcons(logoPath, appModule) {
     const hasImageMagick = await checkImageMagick();
     
     if (!hasImageMagick) {
-      // Fallback: Copy the original logo as the main icon
+      // Fallback: Copy the original logo as the main icon in WebP format
       await copyLogoAsIcon(logoPath, appModule);
       return true;
     }
 
-    // Generate icons for all density folders
+    // Generate icons for all density folders in WebP format
     let successCount = 0;
     const totalSizes = Object.keys(ICON_SIZES).length;
 
@@ -28662,7 +28662,7 @@ async function generateAppIcons(logoPath, appModule) {
       try {
         await generateIconForDensity(logoPath, appModule, density, size);
         successCount++;
-        coreExports.info(`✓ Generated ${density} icon (${size}x${size})`);
+        coreExports.info(`✓ Generated ${density} icon (${size}x${size}) in WebP format`);
       } catch (error) {
         coreExports.warning(`Failed to generate ${density} icon: ${error.message}`);
       }
@@ -28701,7 +28701,7 @@ async function checkImageMagick() {
 }
 
 /**
- * Generate icon for a specific density using ImageMagick
+ * Generate icon for a specific density using ImageMagick in WebP format
  * @param {string} logoPath - Path to the source logo
  * @param {string} appModule - Path to the Android app module
  * @param {string} density - Density folder name (mdpi, hdpi, etc.)
@@ -28714,14 +28714,14 @@ async function generateIconForDensity(logoPath, appModule, density, size) {
 
   // Create density folder path
   const densityFolder = path.join(appModule, 'src', 'main', 'res', `mipmap-${density}`);
-  const iconPath = path.join(densityFolder, 'ic_launcher.png');
+  const iconPath = path.join(densityFolder, 'ic_launcher.webp');
 
   // Create directory if it doesn't exist
   if (!fs.existsSync(densityFolder)) {
     fs.mkdirSync(densityFolder, { recursive: true });
   }
 
-  // Generate icon using ImageMagick
+  // Generate icon using ImageMagick and convert to WebP format
   const command = `convert "${logoPath}" -resize ${size}x${size} -background transparent "${iconPath}"`;
   await execAsync(command);
 
@@ -28732,37 +28732,51 @@ async function generateIconForDensity(logoPath, appModule, density, size) {
 }
 
 /**
- * Fallback: Copy the logo as the main app icon
+ * Fallback: Copy the logo as the main app icon in WebP format
  * @param {string} logoPath - Path to the source logo
  * @param {string} appModule - Path to the Android app module
  */
 async function copyLogoAsIcon(logoPath, appModule) {
   try {
-    // Copy to the main mipmap folder
-    const mipmapFolder = path.join(appModule, 'src', 'main', 'res', 'mipmap-hdpi');
-    const iconPath = path.join(mipmapFolder, 'ic_launcher.png');
-
-    // Create directory if it doesn't exist
-    if (!fs.existsSync(mipmapFolder)) {
-      fs.mkdirSync(mipmapFolder, { recursive: true });
-    }
-
-    // Copy the logo file
-    fs.copyFileSync(logoPath, iconPath);
+    // Try to convert to WebP using ImageMagick first
+    const hasImageMagick = await checkImageMagick();
     
-    coreExports.info(`✓ Copied logo as app icon: ${iconPath}`);
-
-    // Also copy to other density folders for consistency
-    for (const density of Object.keys(ICON_SIZES)) {
-      if (density !== 'hdpi') {
+    if (hasImageMagick) {
+      // Convert and copy to all density folders
+      for (const [density, size] of Object.entries(ICON_SIZES)) {
         const densityFolder = path.join(appModule, 'src', 'main', 'res', `mipmap-${density}`);
-        const densityIconPath = path.join(densityFolder, 'ic_launcher.png');
+        const iconPath = path.join(densityFolder, 'ic_launcher.webp');
         
         if (!fs.existsSync(densityFolder)) {
           fs.mkdirSync(densityFolder, { recursive: true });
         }
         
-        fs.copyFileSync(logoPath, densityIconPath);
+        try {
+          const { exec } = await import('child_process');
+          const { promisify } = await import('util');
+          const execAsync = promisify(exec);
+          
+          const command = `convert "${logoPath}" -resize ${size}x${size} -background transparent "${iconPath}"`;
+          await execAsync(command);
+          coreExports.info(`✓ Converted logo to WebP icon: ${density} (${size}x${size})`);
+        } catch (error) {
+          // If conversion fails, copy as-is with .webp extension
+          fs.copyFileSync(logoPath, iconPath);
+          coreExports.info(`✓ Copied logo as WebP icon: ${density}`);
+        }
+      }
+    } else {
+      // Fallback: Copy the logo file directly with .webp extension
+      for (const [density] of Object.entries(ICON_SIZES)) {
+        const densityFolder = path.join(appModule, 'src', 'main', 'res', `mipmap-${density}`);
+        const iconPath = path.join(densityFolder, 'ic_launcher.webp');
+        
+        if (!fs.existsSync(densityFolder)) {
+          fs.mkdirSync(densityFolder, { recursive: true });
+        }
+        
+        fs.copyFileSync(logoPath, iconPath);
+        coreExports.info(`✓ Copied logo as WebP icon: ${density}`);
       }
     }
 
@@ -28847,7 +28861,7 @@ async function createAdaptiveIconXml(appModule, backgroundColor) {
 }
 
 /**
- * Generate foreground layer for adaptive icons
+ * Generate foreground layer for adaptive icons in WebP format
  * @param {string} logoPath - Path to the source logo
  * @param {string} appModule - Path to the Android app module
  */
@@ -28855,7 +28869,7 @@ async function generateForegroundLayer(logoPath, appModule) {
   // Generate foreground icons for different densities
   for (const [density, size] of Object.entries(ICON_SIZES)) {
     const densityFolder = path.join(appModule, 'src', 'main', 'res', `mipmap-${density}`);
-    const foregroundPath = path.join(densityFolder, 'ic_launcher_foreground.png');
+    const foregroundPath = path.join(densityFolder, 'ic_launcher_foreground.webp');
 
     if (!fs.existsSync(densityFolder)) {
       fs.mkdirSync(densityFolder, { recursive: true });
@@ -28872,15 +28886,16 @@ async function generateForegroundLayer(logoPath, appModule) {
         const { promisify } = await import('util');
         const execAsync = promisify(exec);
 
-        // Create foreground with padding for safe area
+        // Create foreground with padding for safe area in WebP format
         const command = `convert "${logoPath}" -resize ${size}x${size} -background transparent -gravity center -extent ${foregroundSize}x${foregroundSize} "${foregroundPath}"`;
         await execAsync(command);
       } catch (error) {
-        // Fallback: copy the original logo
+        // Fallback: copy the original logo with .webp extension
         fs.copyFileSync(logoPath, foregroundPath);
+        coreExports.warning(`Failed to generate foreground for ${density}, copied original logo: ${error.message}`);
       }
     } else {
-      // Fallback: copy the original logo
+      // Fallback: copy the original logo with .webp extension
       fs.copyFileSync(logoPath, foregroundPath);
     }
   }

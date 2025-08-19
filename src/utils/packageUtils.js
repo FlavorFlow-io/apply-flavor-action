@@ -86,6 +86,7 @@ export function updatePackageReferences(appModule, oldPackage, newPackage) {
   // Update build files and manifest
   updateBuildFiles(appModule, oldPackage, newPackage);
   updateManifest(appModule, oldPackage, newPackage);
+  updateProguardRules(appModule, oldPackage, newPackage);
 }
 
 function updateAllPackageReferencesInProject(appModule, oldPackage, newPackage) {
@@ -353,6 +354,41 @@ function updateManifest(appModule, oldPackage, newPackage) {
     }
   } catch (error) {
     core.warning(`Failed to update AndroidManifest.xml: ${error.message}`);
+  }
+}
+
+function updateProguardRules(appModule, oldPackage, newPackage) {
+  // Common ProGuard rule file names
+  const proguardFiles = [
+    'proguard-rules.pro',
+    'proguard.pro',
+    'consumer-rules.pro'
+  ];
+  
+  for (const proguardFile of proguardFiles) {
+    const proguardPath = path.join(appModule, proguardFile);
+    
+    try {
+      if (fs.existsSync(proguardPath)) {
+        const content = readFileContent(proguardPath);
+        
+        // Replace package references in ProGuard rules
+        // Common patterns: class names, keep rules, etc.
+        const updatedContent = content.replace(
+          new RegExp(escapeRegex(oldPackage), 'g'),
+          newPackage
+        );
+        
+        if (content !== updatedContent) {
+          writeFileContent(proguardPath, updatedContent);
+          core.info(`Updated package references in ${proguardFile}`);
+        } else {
+          core.debug(`No package references found in ${proguardFile}`);
+        }
+      }
+    } catch (error) {
+      core.warning(`Failed to update ${proguardFile}: ${error.message}`);
+    }
   }
 }
 

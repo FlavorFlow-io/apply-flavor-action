@@ -1,5 +1,9 @@
-name: Apply Branding
+name: Prisme Apply Branding Android
 description: Apply branding configuration for a specific flavor
+
+branding:
+  icon: smartphone
+  color: purple
 
 inputs:
   flavor:

@@ -32,7 +32,7 @@ The status of the branding application process.
 # Apply branding for a specific flavor:
 steps:
   - id: apply-branding
-    uses: prisme/apply-branding-action@v1
+    uses: lucianosantosdev/prisme-apply-brand@v1
     with:
       flavor: ${{ matrix.flavor }}
       project-api-key: ${{ secrets.PROJECT_API_KEY }}
@@ -42,7 +42,7 @@ steps:
 
 ## Matrix build example
 
-You can combine this action with the fetch-flavors-action to create a complete white-label build pipeline:
+You can combine this action with the prisme-fetch-flavors-action to create a complete white-label build pipeline:
 
 ```yaml
 jobs:
@@ -52,7 +52,7 @@ jobs:
       flavors: ${{ steps.fetch-flavors.outputs.flavors }}
     steps:
       - id: fetch-flavors
-        uses: prisme/fetch-flavors-action@v1
+        uses: lucianosantosdev/prisme-fetch-flavors-action@v1
         with:
           project-api-key: ${{ secrets.PROJECT_API_KEY }}
 
@@ -67,7 +67,7 @@ jobs:
         uses: actions/checkout@v3
       
       - name: Apply branding
-        uses: prisme/apply-branding-action@v1
+        uses: lucianosantosdev/apply-branding-android-native-action@v1
         with:
           flavor: ${{ matrix.flavor }}
           project-api-key: ${{ secrets.PROJECT_API_KEY }}

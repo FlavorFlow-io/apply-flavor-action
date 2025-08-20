@@ -32,7 +32,7 @@ The status of the branding application process.
 # Apply branding for a specific flavor:
 steps:
   - id: apply-branding
-    uses: lucianosantosdev/prisme-apply-flavor@v1
+    uses: lucianosantosdev/prisme-apply-flavor-action@v1
     with:
       flavor: ${{ matrix.flavor }}
       project-api-key: ${{ secrets.PROJECT_API_KEY }}
@@ -67,7 +67,7 @@ jobs:
         uses: actions/checkout@v3
       
       - name: Apply branding
-        uses: lucianosantosdev/prisme-apply-flavor@v1
+        uses: lucianosantosdev/prisme-apply-flavor-action@v1
         with:
           flavor: ${{ matrix.flavor }}
           project-api-key: ${{ secrets.PROJECT_API_KEY }}

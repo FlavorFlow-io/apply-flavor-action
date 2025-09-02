@@ -27740,58 +27740,6 @@ function pathToPackage(packagePath) {
   return packagePath.replace(/\//g, '.');
 }
 
-/**
- * Compose theme management utilities
- */
-
-/**
- * Check if the project uses Compose theming (has Theme.kt files)
- * @param {string} appModule - Path to the Android app module
- * @returns {boolean} - True if the project uses Compose theming
- */
-function usesComposeTheming(appModule) {
-  try {
-    const sourceDirs = ['src/main/java', 'src/main/kotlin'];
-    
-    for (const sourceDir of sourceDirs) {
-      const sourcePath = path.join(appModule, sourceDir);
-      
-      if (fs.existsSync(sourcePath)) {
-        const files = fs.readdirSync(sourcePath, { recursive: true });
-        
-        // Check for Theme.kt files or @Composable theme functions
-        const hasComposeTheme = files.some(file => {
-          if (typeof file === 'string' && file.endsWith('Theme.kt')) {
-            return true;
-          }
-          if (typeof file === 'string' && file.endsWith('.kt')) {
-            try {
-              const filePath = path.join(sourcePath, file);
-              const content = fs.readFileSync(filePath, 'utf8');
-              return content.includes('@Composable') && 
-                     (content.includes('Theme(') || content.includes('MaterialTheme'));
-            } catch {
-              return false;
-            }
-          }
-          return false;
-        });
-        
-        if (hasComposeTheme) {
-          coreExports.info('✓ Project uses Compose theming, XML themes not needed');
-          return true;
-        }
-      }
-    }
-    
-    coreExports.info('✓ Project uses traditional XML theming');
-    return false;
-  } catch (error) {
-    coreExports.debug(`Failed to detect Compose theming: ${error.message}`);
-    return false;
-  }
-}
-
 function updateComposeTheme(appModule, config) {
   const themeFiles = findComposeThemeFiles(appModule);
   
@@ -28985,16 +28933,23 @@ async function generateForegroundLayer(logoPath, appModule) {
   }
 }
 
-async function downloadLogo(logoUrl, apiKey, outputPath) {
+/**
+ * Downloads an asset from URL and returns the absolute path
+ * @param {string} assetUrl - The URL to download the asset from
+ * @param {string} apiKey - API key for authentication
+ * @param {string} outputPath - Path where the asset should be saved
+ * @returns {Promise<string>} - Absolute path to the downloaded asset
+ */
+async function downloadAsset(assetUrl, apiKey, outputPath) {
   try {
-    coreExports.info(`Downloading logo from: ${logoUrl}`);
+    coreExports.info(`Downloading asset from: ${assetUrl}`);
     
-    // Fetch the logo
-    const response = await fetch(logoUrl, {
+    // Fetch the asset
+    const response = await fetch(assetUrl, {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${apiKey}`,
-        'Accept': 'image/*'
+        'Accept': '*/*'
       }
     });
 
@@ -29004,18 +28959,18 @@ async function downloadLogo(logoUrl, apiKey, outputPath) {
 
     // Get content type to determine file extension
     const contentType = response.headers.get('content-type') || '';
-    let extension = '.png'; // default fallback
+    let extension = getExtensionFromContentType(contentType);
     
-    if (contentType.includes('image/svg+xml')) {
-      extension = '.svg';
-    } else if (contentType.includes('image/jpeg') || contentType.includes('image/jpg')) {
-      extension = '.jpg';
-    } else if (contentType.includes('image/gif')) {
-      extension = '.gif';
-    } else if (contentType.includes('image/webp')) {
-      extension = '.webp';
+    // If no extension could be determined from content type, try to get it from URL
+    if (!extension) {
+      const urlPath = new URL(assetUrl).pathname;
+      const urlExtension = path.extname(urlPath);
+      if (urlExtension) {
+        extension = urlExtension;
+      } else {
+        extension = '.bin'; // fallback for unknown types
+      }
     }
-    // .png is already the default, no need to reassign
 
     // Create final output path with proper extension
     const finalOutputPath = `${outputPath}${extension}`;
@@ -29026,9 +28981,9 @@ async function downloadLogo(logoUrl, apiKey, outputPath) {
       fs.mkdirSync(outputDir, { recursive: true });
     }
 
-    // Get the image data as buffer
-    const imageBuffer = await response.arrayBuffer();
-    const buffer = Buffer.from(imageBuffer);
+    // Get the asset data as buffer
+    const assetBuffer = await response.arrayBuffer();
+    const buffer = Buffer.from(assetBuffer);
 
     // Write the file
     fs.writeFileSync(finalOutputPath, buffer);
@@ -29036,15 +28991,120 @@ async function downloadLogo(logoUrl, apiKey, outputPath) {
     // Verify file was written successfully
     if (fs.existsSync(finalOutputPath)) {
       const stats = fs.statSync(finalOutputPath);
-      coreExports.info(`Logo downloaded successfully: ${finalOutputPath}`);
+      coreExports.info(`Asset downloaded successfully: ${finalOutputPath}`);
       coreExports.info(`File size: ${(stats.size / 1024).toFixed(2)} KB`);
       coreExports.info(`Content type: ${contentType}`);
-      return finalOutputPath;
+      
+      // Return absolute path
+      return path.resolve(finalOutputPath);
     } else {
-      throw new Error('Logo file was not created successfully');
+      throw new Error('Asset file was not created successfully');
     }
   } catch (error) {
-    throw new Error(`Failed to download logo: ${error.message}`);
+    throw new Error(`Failed to download asset: ${error.message}`);
+  }
+}
+
+/**
+ * Gets file extension from content type
+ * @param {string} contentType - The content type header
+ * @returns {string|null} - File extension or null if unknown
+ */
+function getExtensionFromContentType(contentType) {
+  const contentTypeLower = contentType.toLowerCase();
+  
+  // Define content type to extension mappings
+  const contentTypeMap = {
+    'image/png': '.png',
+    'image/jpeg': '.jpg',
+    'image/jpg': '.jpg',
+    'image/gif': '.gif',
+    'image/svg+xml': '.svg',
+    'image/webp': '.webp',
+    'image/bmp': '.bmp',
+    'image/tiff': '.tiff',
+    'application/pdf': '.pdf',
+    'application/json': '.json',
+    'application/xml': '.xml',
+    'text/plain': '.txt',
+    'text/csv': '.csv',
+    'video/mp4': '.mp4',
+    'video/webm': '.webm',
+    'video/ogg': '.ogv',
+    'audio/mpeg': '.mp3',
+    'audio/wav': '.wav',
+    'audio/ogg': '.ogg'
+  };
+  
+  // Find matching content type
+  for (const [type, extension] of Object.entries(contentTypeMap)) {
+    if (contentTypeLower.includes(type)) {
+      return extension;
+    }
+  }
+  
+  return null;
+}
+
+/**
+ * Downloads all assets from the flavor configuration and sets environment variables
+ * @param {Object} assets - Assets object from flavor configuration
+ * @param {string} apiKey - API key for authentication
+ * @param {string} destinationDir - Directory where assets should be downloaded
+ * @returns {Promise<Object>} - Object mapping asset names to their absolute paths
+ */
+async function downloadAndSetAssets(assets, apiKey, destinationDir) {
+  if (!assets || typeof assets !== 'object') {
+    coreExports.info("No assets found to download");
+    return {};
+  }
+
+  coreExports.info("=== Downloading Assets ===");
+  const downloadedAssets = {};
+  
+  for (const [assetName, assetUrl] of Object.entries(assets)) {
+    try {
+      const outputPath = path.join(destinationDir, assetName);
+      const absolutePath = await downloadAsset(assetUrl, apiKey, outputPath);
+      
+      // Set environment variable for the asset
+      const envVarName = assetName.toUpperCase();
+      coreExports.exportVariable(envVarName, absolutePath);
+      coreExports.info(`Set environment variable: ${envVarName}=${absolutePath}`);
+      
+      downloadedAssets[assetName] = absolutePath;
+    } catch (error) {
+      coreExports.warning(`Failed to download asset '${assetName}': ${error.message}`);
+      // Continue with other assets even if one fails
+    }
+  }
+  
+  coreExports.info(`Successfully downloaded ${Object.keys(downloadedAssets).length} assets`);
+  return downloadedAssets;
+}
+
+/**
+ * Sets environment variables from the flavor variables configuration
+ * @param {Object} variables - Variables object from flavor configuration
+ */
+function setFlavorVariables(variables) {
+  if (!variables || typeof variables !== 'object') {
+    coreExports.info("No variables found to set");
+    return;
+  }
+
+  coreExports.info("=== Setting Flavor Variables ===");
+  
+  for (const [varName, varValue] of Object.entries(variables)) {
+    try {
+      const envVarName = varName.toUpperCase();
+      const stringValue = String(varValue);
+      
+      coreExports.exportVariable(envVarName, stringValue);
+      coreExports.info(`Set environment variable: ${envVarName}=${stringValue}`);
+    } catch (error) {
+      coreExports.warning(`Failed to set variable '${varName}': ${error.message}`);
+    }
   }
 }
 
@@ -29057,7 +29117,7 @@ async function handleLogoDownload(flavor, apiKey) {
   coreExports.info("=== Logo Download ===");
   try {
     const logoOutputPath = `./assets/logos/${flavor.name || flavor.id}`;
-    const logoPath = await downloadLogo(flavor.logo_url, apiKey, logoOutputPath);
+    const logoPath = await downloadAsset(flavor.logo_url, apiKey, logoOutputPath);
     
     coreExports.info(`Logo saved to: ${logoPath}`);
     return logoPath;
@@ -29068,9 +29128,34 @@ async function handleLogoDownload(flavor, apiKey) {
   }
 }
 
-async function applyBranding(flavor, logoPath) {
+async function applyTheming(appModule, flavor, projectType) {
+  if (!flavor.theme) {
+    return;
+  }
+
+  if (projectType === 'android-native-compose') {
+    coreExports.info("Using project type: android-native-compose - updating Compose theme files only");
+    updateComposeTheme(appModule, flavor);
+  } else if (projectType === 'android-native-xml') {
+    coreExports.info("Using project type: android-native-xml - updating XML theme files only");
+    updateXmlColors(appModule, flavor);
+    createThemeXml(appModule, flavor);
+  } else {
+    coreExports.info("No project type specified - skipping theming file manipulation");
+  }
+}
+
+async function applyBranding(flavor, logoPath, projectType) {
   try {
     coreExports.info("=== Applying Branding ===");
+    coreExports.info(`Project Type: ${projectType || 'none - environment variables only'}`);
+    
+    // If no project type is specified, skip all file manipulations
+    if (!projectType) {
+      coreExports.info("No project type specified - skipping all file manipulations");
+      coreExports.info("Only environment variables and assets will be processed");
+      return;
+    }
     
     // Find Android app module
     const appModule = findAndroidAppModule();
@@ -29095,27 +29180,8 @@ async function applyBranding(flavor, logoPath) {
       updateAppName(appModule, flavor);
     }
     
-    // Update colors and theme
-    if (flavor.theme) {
-      // Check if the project uses Compose theming
-      const isComposeProject = usesComposeTheming(appModule);
-      
-      if (isComposeProject) {
-        coreExports.info("Project uses Compose theming - updating Compose theme files only");
-        // Only update Compose theme files
-        updateComposeTheme(appModule, flavor);
-      } else {
-        coreExports.info("Project uses XML theming - updating both XML and Compose files");
-        // Update XML colors for compatibility
-        updateXmlColors(appModule, flavor);
-        
-        // Update Compose theme (if any)
-        updateComposeTheme(appModule, flavor);
-        
-        // Create theme XML
-        createThemeXml(appModule, flavor);
-      }
-    }
+    // Update colors and theme based on project type
+    await applyTheming(appModule, flavor, projectType);
     
     // Generate app icons from logo
     if (logoPath) {
@@ -29140,9 +29206,32 @@ async function applyBranding(flavor, logoPath) {
 }
 
 try {
+  // Expose theme colors as environment variables
+  if (flavor.theme) {
+    if (flavor.theme.light && typeof flavor.theme.light === 'object') {
+      for (const [key, value] of Object.entries(flavor.theme.light)) {
+        if (typeof value !== 'undefined') {
+          const envVar = `FLAVORFLOW_THEME_LIGHT_${key.toUpperCase()}`;
+          coreExports.exportVariable(envVar, String(value));
+          coreExports.info(`Set environment variable: ${envVar}=${value}`);
+        }
+      }
+    }
+    if (flavor.theme.dark && typeof flavor.theme.dark === 'object') {
+      for (const [key, value] of Object.entries(flavor.theme.dark)) {
+        if (typeof value !== 'undefined') {
+          const envVar = `FLAVORFLOW_THEME_DARK_${key.toUpperCase()}`;
+          coreExports.exportVariable(envVar, String(value));
+          coreExports.info(`Set environment variable: ${envVar}=${value}`);
+        }
+      }
+    }
+  }
   // Get inputs
   const apiKey = coreExports.getInput("project-api-key");
   const flavorJson = coreExports.getInput("flavor");
+  const assetsDestination = coreExports.getInput("assets-destination") || "./assets";
+  const projectType = coreExports.getInput("project-type");
 
   if (!apiKey) {
     throw new Error("project-api-key input is required");
@@ -29150,6 +29239,12 @@ try {
   
   if (!flavorJson) {
     throw new Error("flavor input is required");
+  }
+
+  // Validate project type if provided
+  const validProjectTypes = ['android-native-compose', 'android-native-xml'];
+  if (projectType && !validProjectTypes.includes(projectType)) {
+    throw new Error(`Invalid project-type: ${projectType}. Valid types are: ${validProjectTypes.join(', ')}`);
   }
 
   // Parse flavor JSON
@@ -29164,9 +29259,37 @@ try {
   coreExports.info(`Flavor Name: ${flavor.name || flavor.id || 'Unknown'}`);
   coreExports.info(`Package Name: ${flavor.package_name || 'Not specified'}`);
   coreExports.info(`App Name: ${flavor.app_name || 'Not specified'}`);
+  coreExports.info(`Project Type: ${projectType || 'none - environment variables only'}`);
+  coreExports.info(`Assets Destination: ${assetsDestination}`);
+
+
+  // Set environment variables from flavor variables
+  if (flavor.variables) {
+    setFlavorVariables(flavor.variables);
+  }
+
+  // Expose FLAVORFLOW_NAME, FLAVORFLOW_APP_NAME, FLAVORFLOW_PACKAGE_NAME
+  if (flavor.name) {
+    coreExports.exportVariable('FLAVORFLOW_NAME', String(flavor.name));
+    coreExports.info(`Set environment variable: FLAVORFLOW_NAME=${flavor.name}`);
+  }
+  if (flavor.app_name) {
+    coreExports.exportVariable('FLAVORFLOW_APP_NAME', String(flavor.app_name));
+    coreExports.info(`Set environment variable: FLAVORFLOW_APP_NAME=${flavor.app_name}`);
+  }
+  if (flavor.package_name) {
+    coreExports.exportVariable('FLAVORFLOW_PACKAGE_NAME', String(flavor.package_name));
+    coreExports.info(`Set environment variable: FLAVORFLOW_PACKAGE_NAME=${flavor.package_name}`);
+  }
+
+  // Download assets and set environment variables
+  let downloadedAssets = {};
+  if (flavor.assets) {
+    downloadedAssets = await downloadAndSetAssets(flavor.assets, apiKey, assetsDestination);
+  }
 
   // Log theme information if available
-  if (flavor.theme && flavor.theme.light) {
+  if (flavor.theme?.light) {
     coreExports.info("=== Theme Configuration ===");
     const theme = flavor.theme.light;
     if (theme.primary) coreExports.info(`Primary Color: ${theme.primary}`);
@@ -29179,21 +29302,37 @@ try {
     if (theme.on_surface) coreExports.info(`On Surface Color: ${theme.on_surface}`);
   }
 
-  // Download logo if available
-  const logoPath = await handleLogoDownload(flavor, apiKey);
-  if (logoPath) {
-    coreExports.setOutput("logo-path", logoPath);
+  // Download logo if available and project type is specified
+  let logoPath = null;
+  if (projectType) {
+    logoPath = await handleLogoDownload(flavor, apiKey);
+    if (logoPath) {
+      coreExports.setOutput("logo-path", logoPath);
+      coreExports.exportVariable('FLAVORFLOW_LOGO', logoPath);
+      coreExports.info(`Set environment variable: FLAVORFLOW_LOGO=${logoPath}`);
+    }
+  } else {
+    coreExports.info("No project type specified - skipping logo download");
   }
 
   // Apply all branding changes
-  await applyBranding(flavor, logoPath);
+  await applyBranding(flavor, logoPath, projectType);
 
   // Set outputs
   coreExports.setOutput("status", "success");
   coreExports.setOutput("flavor-name", flavor.name || flavor.id || 'unknown');
   coreExports.setOutput("package-name", flavor.package_name || '');
+  coreExports.setOutput("assets-downloaded", Object.keys(downloadedAssets).length.toString());
+  coreExports.setOutput("variables-set", flavor.variables ? Object.keys(flavor.variables).length.toString() : "0");
+  coreExports.setOutput("project-type", projectType || 'none');
   
-  coreExports.info("=== Branding Applied Successfully ===");
+  if (projectType) {
+    coreExports.info("=== Branding Applied Successfully ===");
+  } else {
+    coreExports.info("=== Environment Variables Set Successfully ===");
+  }
+  coreExports.info(`Downloaded ${Object.keys(downloadedAssets).length} assets`);
+  coreExports.info(`Set ${flavor.variables ? Object.keys(flavor.variables).length : 0} environment variables`);
 
 } catch (error) {
   coreExports.setFailed(error.message);

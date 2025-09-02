@@ -1,5 +1,5 @@
 {
-  "name": "prisme-fetch-flavors-action",
+  "name": "flavorflow-fetch-flavors-action",
   "version": "1.0.0",
   "main": "index.js",
   "type": "module",
@@ -9,15 +9,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/lucianosantosdev/prisme-fetch-flavors-action.git"
+  "url": "git+https://github.com/FlavorFlow-io/fetch-flavors-action.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/lucianosantosdev/prisme-fetch-flavors-action/issues"
+  "url": "https://github.com/FlavorFlow-io/fetch-flavors-action/issues"
   },
-  "homepage": "https://github.com/lucianosantosdev/prisme-fetch-flavors-action#readme",
+  "homepage": "https://github.com/FlavorFlow-io/fetch-flavors-action#readme",
   "description": "",
   "dependencies": {
     "@actions/core": "^1.11.1",

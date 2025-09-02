@@ -1,5 +1,5 @@
-name: Prisme Apply Branding Android
-description: Apply branding configuration for a specific flavor
+name: FlavorFlow Apply Flavor Configuration
+description: Apply complete flavor configuration including branding, assets, and environment variables. See https://flavorflow.io
 
 branding:
   icon: smartphone
@@ -14,9 +14,36 @@ inputs:
     description: 'The project API key to fetch additional resources if needed'
     required: true
 
+  assets-destination:
+    description: 'Directory where assets should be downloaded'
+    required: false
+    default: './assets'
+
+  project-type:
+    description: 'The type of project to apply flavor to (android-native-compose, android-native-xml)'
+    required: false
+
 outputs:
   status:
     description: 'Status of the branding application'
+  
+  flavor-name:
+    description: 'Name of the applied flavor'
+    
+  package-name:
+    description: 'Package name that was applied'
+    
+  logo-path:
+    description: 'Path to the downloaded logo file'
+    
+  assets-downloaded:
+    description: 'Number of assets that were downloaded'
+    
+  variables-set:
+    description: 'Number of environment variables that were set'
+    
+  project-type:
+    description: 'Project type that was used (actual or detected)'
 
 runs:
   using: node20

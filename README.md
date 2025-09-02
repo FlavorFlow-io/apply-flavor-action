@@ -1,6 +1,6 @@
-
 <p align="center">
   <img src="./flavorflow_logo.png" alt="FlavorFlow Logo" width="180" />
+  <h1 align="center">FlavorFlow</h1>
 </p>
 
 # Apply FlavorFlow Configuration GitHub Action
@@ -135,7 +135,6 @@ After running this action, the following environment variables will be available
 
 **From flavor.variables:**
 - All variables from the flavor configuration are set as uppercase environment variables
-- Example: `MANDATORY_1`, `TESTE`, `NON_MANDATORY_BOOL`, etc.
 
 **From flavor.assets:**
 - All assets are downloaded and their absolute paths are set as uppercase environment variables

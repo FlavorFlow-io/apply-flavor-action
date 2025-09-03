@@ -1720,7 +1720,7 @@ function requireTimers () {
 	return timers;
 }
 
-var main = {exports: {}};
+var main$1 = {exports: {}};
 
 var sbmh;
 var hasRequiredSbmh;
@@ -3258,7 +3258,7 @@ function requireUrlencoded () {
 var hasRequiredMain;
 
 function requireMain () {
-	if (hasRequiredMain) return main.exports;
+	if (hasRequiredMain) return main$1.exports;
 	hasRequiredMain = 1;
 
 	const WritableStream = require$$0$7.Writable;
@@ -3339,12 +3339,12 @@ function requireMain () {
 	  this._parser.write(chunk, cb);
 	};
 
-	main.exports = Busboy;
-	main.exports.default = Busboy;
-	main.exports.Busboy = Busboy;
+	main$1.exports = Busboy;
+	main$1.exports.default = Busboy;
+	main$1.exports.Busboy = Busboy;
 
-	main.exports.Dicer = Dicer;
-	return main.exports;
+	main$1.exports.Dicer = Dicer;
+	return main$1.exports;
 }
 
 var constants$3;
@@ -29147,26 +29147,20 @@ async function applyTheming(appModule, flavor, projectType) {
 
 async function applyBranding(flavor, logoPath, projectType) {
   try {
-    coreExports.info("=== Applying Branding ===");
-    coreExports.info(`Project Type: ${projectType || 'none - environment variables only'}`);
-    
     // If no project type is specified, skip all file manipulations
     if (!projectType) {
-      coreExports.info("No project type specified - skipping all file manipulations");
-      coreExports.info("Only environment variables and assets will be processed");
       return;
     }
     
     // Find Android app module
     const appModule = findAndroidAppModule();
-    coreExports.info(`Using Android app module: ${appModule}`);
     
     // Detect existing package name
     const existingPackage = detectExistingPackage(appModule);
     const newPackage = flavor.package_name;
     
     if (existingPackage && newPackage && existingPackage !== newPackage) {
-      coreExports.info(`Updating package name from ${existingPackage} to ${newPackage}`);
+      coreExports.info(`📦 Updating package name from ${existingPackage} to ${newPackage}`);
       updatePackageReferences(appModule, existingPackage, newPackage);
     }
     
@@ -29185,27 +29179,22 @@ async function applyBranding(flavor, logoPath, projectType) {
     
     // Generate app icons from logo
     if (logoPath) {
-      coreExports.info("=== Generating App Icons ===");
       const iconSuccess = await generateAppIcons(logoPath, appModule);
       if (iconSuccess) {
-        coreExports.info("✓ App icons generated successfully");
+        coreExports.info("🎨 App icons generated successfully");
         
         // Also generate adaptive icons for modern Android
         const backgroundColor = flavor.theme?.light?.background || '#FFFFFF';
         await generateAdaptiveIcons(logoPath, appModule, backgroundColor);
       }
-    } else {
-      coreExports.info("No logo available - skipping icon generation");
     }
-    
-    coreExports.info("✓ Branding applied successfully!");
     
   } catch (error) {
     throw new Error(`Failed to apply branding: ${error.message}`);
   }
 }
 
-try {
+async function setThemeEnvironmentVariables(flavor) {
   // Expose theme colors as environment variables
   if (flavor.theme) {
     if (flavor.theme.light && typeof flavor.theme.light === 'object') {
@@ -29213,7 +29202,6 @@ try {
         if (typeof value !== 'undefined') {
           const envVar = `FLAVORFLOW_THEME_LIGHT_${key.toUpperCase()}`;
           coreExports.exportVariable(envVar, String(value));
-          coreExports.info(`Set environment variable: ${envVar}=${value}`);
         }
       }
     }
@@ -29222,47 +29210,13 @@ try {
         if (typeof value !== 'undefined') {
           const envVar = `FLAVORFLOW_THEME_DARK_${key.toUpperCase()}`;
           coreExports.exportVariable(envVar, String(value));
-          coreExports.info(`Set environment variable: ${envVar}=${value}`);
         }
       }
     }
   }
-  // Get inputs
-  const apiKey = coreExports.getInput("project-api-key");
-  const flavorJson = coreExports.getInput("flavor");
-  const assetsDestination = coreExports.getInput("assets-destination") || "./assets";
-  const projectType = coreExports.getInput("project-type");
+}
 
-  if (!apiKey) {
-    throw new Error("project-api-key input is required");
-  }
-  
-  if (!flavorJson) {
-    throw new Error("flavor input is required");
-  }
-
-  // Validate project type if provided
-  const validProjectTypes = ['android-native-compose', 'android-native-xml'];
-  if (projectType && !validProjectTypes.includes(projectType)) {
-    throw new Error(`Invalid project-type: ${projectType}. Valid types are: ${validProjectTypes.join(', ')}`);
-  }
-
-  // Parse flavor JSON
-  let flavor;
-  try {
-    flavor = JSON.parse(flavorJson);
-  } catch (parseError) {
-    throw new Error(`Invalid flavor JSON: ${parseError.message}`);
-  }
-
-  coreExports.info("=== Applying Branding Configuration ===");
-  coreExports.info(`Flavor Name: ${flavor.name || flavor.id || 'Unknown'}`);
-  coreExports.info(`Package Name: ${flavor.package_name || 'Not specified'}`);
-  coreExports.info(`App Name: ${flavor.app_name || 'Not specified'}`);
-  coreExports.info(`Project Type: ${projectType || 'none - environment variables only'}`);
-  coreExports.info(`Assets Destination: ${assetsDestination}`);
-
-
+async function setFlavorEnvironmentVariables(flavor) {
   // Set environment variables from flavor variables
   if (flavor.variables) {
     setFlavorVariables(flavor.variables);
@@ -29271,23 +29225,16 @@ try {
   // Expose FLAVORFLOW_NAME, FLAVORFLOW_APP_NAME, FLAVORFLOW_PACKAGE_NAME
   if (flavor.name) {
     coreExports.exportVariable('FLAVORFLOW_NAME', String(flavor.name));
-    coreExports.info(`Set environment variable: FLAVORFLOW_NAME=${flavor.name}`);
   }
   if (flavor.app_name) {
     coreExports.exportVariable('FLAVORFLOW_APP_NAME', String(flavor.app_name));
-    coreExports.info(`Set environment variable: FLAVORFLOW_APP_NAME=${flavor.app_name}`);
   }
   if (flavor.package_name) {
     coreExports.exportVariable('FLAVORFLOW_PACKAGE_NAME', String(flavor.package_name));
-    coreExports.info(`Set environment variable: FLAVORFLOW_PACKAGE_NAME=${flavor.package_name}`);
   }
+}
 
-  // Download assets and set environment variables
-  let downloadedAssets = {};
-  if (flavor.assets) {
-    downloadedAssets = await downloadAndSetAssets(flavor.assets, apiKey, assetsDestination);
-  }
-
+async function logThemeInformation(flavor) {
   // Log theme information if available
   if (flavor.theme?.light) {
     coreExports.info("=== Theme Configuration ===");
@@ -29301,40 +29248,100 @@ try {
     if (theme.on_background) coreExports.info(`On Background Color: ${theme.on_background}`);
     if (theme.on_surface) coreExports.info(`On Surface Color: ${theme.on_surface}`);
   }
-
-  // Download logo if available and project type is specified
-  let logoPath = null;
-  if (projectType) {
-    logoPath = await handleLogoDownload(flavor, apiKey);
-    if (logoPath) {
-      coreExports.setOutput("logo-path", logoPath);
-      coreExports.exportVariable('FLAVORFLOW_LOGO', logoPath);
-      coreExports.info(`Set environment variable: FLAVORFLOW_LOGO=${logoPath}`);
-    }
-  } else {
-    coreExports.info("No project type specified - skipping logo download");
-  }
-
-  // Apply all branding changes
-  await applyBranding(flavor, logoPath, projectType);
-
-  // Set outputs
-  coreExports.setOutput("status", "success");
-  coreExports.setOutput("flavor-name", flavor.name || flavor.id || 'unknown');
-  coreExports.setOutput("package-name", flavor.package_name || '');
-  coreExports.setOutput("assets-downloaded", Object.keys(downloadedAssets).length.toString());
-  coreExports.setOutput("variables-set", flavor.variables ? Object.keys(flavor.variables).length.toString() : "0");
-  coreExports.setOutput("project-type", projectType || 'none');
-  
-  if (projectType) {
-    coreExports.info("=== Branding Applied Successfully ===");
-  } else {
-    coreExports.info("=== Environment Variables Set Successfully ===");
-  }
-  coreExports.info(`Downloaded ${Object.keys(downloadedAssets).length} assets`);
-  coreExports.info(`Set ${flavor.variables ? Object.keys(flavor.variables).length : 0} environment variables`);
-
-} catch (error) {
-  coreExports.setFailed(error.message);
 }
+
+async function main() {
+  try {
+    // Get inputs
+    const apiKey = coreExports.getInput("project-api-key");
+    const flavorJson = coreExports.getInput("flavor");
+    const assetsDestination = coreExports.getInput("assets-destination") || "./assets";
+    const projectType = coreExports.getInput("project-type");
+
+    if (!apiKey) {
+      throw new Error("project-api-key input is required");
+    }
+    
+    if (!flavorJson) {
+      throw new Error("flavor input is required");
+    }
+
+    // Validate project type if provided
+    const validProjectTypes = ['android-native-compose', 'android-native-xml'];
+    if (projectType && !validProjectTypes.includes(projectType)) {
+      throw new Error(`Invalid project-type: ${projectType}. Valid types are: ${validProjectTypes.join(', ')}`);
+    }
+
+    // Parse flavor JSON
+    let flavor;
+    try {
+      const parsedJson = JSON.parse(flavorJson);
+      
+      // Check if the JSON has a 'flavors' wrapper and extract the actual flavor data
+      if (parsedJson.flavors && typeof parsedJson.flavors === 'object') {
+        flavor = parsedJson.flavors;
+      } else {
+        // Direct flavor object
+        flavor = parsedJson;
+      }
+    } catch (parseError) {
+      throw new Error(`Invalid flavor JSON: ${parseError.message}`);
+    }
+
+    coreExports.info("=== Applying Branding Configuration ===");
+    coreExports.info(`Flavor Name: ${flavor.name || flavor.id || 'Unknown'}`);
+    coreExports.info(`Package Name: ${flavor.package_name || 'Not specified'}`);
+    coreExports.info(`App Name: ${flavor.app_name || 'Not specified'}`);
+    coreExports.info(`Project Type: ${projectType || 'none - environment variables only'}`);
+    coreExports.info(`Assets Destination: ${assetsDestination}`);
+
+    // Set all environment variables
+    await setThemeEnvironmentVariables(flavor);
+    await setFlavorEnvironmentVariables(flavor);
+
+    // Download assets and set environment variables
+    let downloadedAssets = {};
+    if (flavor.assets) {
+      downloadedAssets = await downloadAndSetAssets(flavor.assets, apiKey, assetsDestination);
+    }
+
+    // Log theme information
+    await logThemeInformation(flavor);
+
+    // Download logo if available and project type is specified
+    let logoPath = null;
+    if (projectType) {
+      logoPath = await handleLogoDownload(flavor, apiKey);
+      if (logoPath) {
+        coreExports.setOutput("logo-path", logoPath);
+        coreExports.exportVariable('FLAVORFLOW_LOGO', logoPath);
+      }
+    }
+
+    // Apply all branding changes
+    await applyBranding(flavor, logoPath, projectType);
+
+    // Set outputs
+    coreExports.setOutput("status", "success");
+    coreExports.setOutput("flavor-name", flavor.name || flavor.id || 'unknown');
+    coreExports.setOutput("package-name", flavor.package_name || '');
+    coreExports.setOutput("assets-downloaded", Object.keys(downloadedAssets).length.toString());
+    coreExports.setOutput("variables-set", flavor.variables ? Object.keys(flavor.variables).length.toString() : "0");
+    coreExports.setOutput("project-type", projectType || 'none');
+    
+    coreExports.info("✅ Branding configuration applied successfully");
+    if (Object.keys(downloadedAssets).length > 0) {
+      coreExports.info(`📥 Downloaded ${Object.keys(downloadedAssets).length} assets`);
+    }
+    if (flavor.variables && Object.keys(flavor.variables).length > 0) {
+      coreExports.info(`🔧 Set ${Object.keys(flavor.variables).length} environment variables`);
+    }
+
+  } catch (error) {
+    coreExports.setFailed(error.message);
+  }
+}
+
+// Execute the main function
+main();
 //# sourceMappingURL=index.js.map

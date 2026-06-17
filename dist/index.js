@@ -28933,6 +28933,22 @@ async function generateForegroundLayer(logoPath, appModule) {
   }
 }
 
+// The FlavorFlow API returns path-only URLs (e.g. /v1/assets/{id},
+// /api/flavors/{id}/logo/file) by convention; resolve them against the API base.
+const API_BASE_URL = "https://api.flavorflow.io";
+
+/**
+ * Resolves a possibly-relative asset URL against the API base URL.
+ * @param {string} url - Absolute or path-only URL
+ * @returns {string} - Absolute URL
+ */
+function resolveAssetUrl(url) {
+  if (/^https?:\/\//i.test(url)) {
+    return url;
+  }
+  return `${API_BASE_URL}${url.startsWith('/') ? '' : '/'}${url}`;
+}
+
 /**
  * Downloads an asset from URL and returns the absolute path
  * @param {string} assetUrl - The URL to download the asset from
@@ -28942,10 +28958,11 @@ async function generateForegroundLayer(logoPath, appModule) {
  */
 async function downloadAsset(assetUrl, apiKey, outputPath) {
   try {
-    coreExports.info(`Downloading asset from: ${assetUrl}`);
-    
+    const resolvedUrl = resolveAssetUrl(assetUrl);
+    coreExports.info(`Downloading asset from: ${resolvedUrl}`);
+
     // Fetch the asset
-    const response = await fetch(assetUrl, {
+    const response = await fetch(resolvedUrl, {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${apiKey}`,
@@ -28963,7 +28980,7 @@ async function downloadAsset(assetUrl, apiKey, outputPath) {
     
     // If no extension could be determined from content type, try to get it from URL
     if (!extension) {
-      const urlPath = new URL(assetUrl).pathname;
+      const urlPath = new URL(resolvedUrl).pathname;
       const urlExtension = path.extname(urlPath);
       if (urlExtension) {
         extension = urlExtension;
@@ -29328,7 +29345,7 @@ async function main() {
     coreExports.setOutput("assets-downloaded", Object.keys(downloadedAssets).length.toString());
     coreExports.setOutput("variables-set", flavor.variables ? Object.keys(flavor.variables).length.toString() : "0");
     coreExports.setOutput("project-type", projectType || 'none');
-    
+
     coreExports.info("✅ Branding configuration applied successfully");
     if (Object.keys(downloadedAssets).length > 0) {
       coreExports.info(`📥 Downloaded ${Object.keys(downloadedAssets).length} assets`);

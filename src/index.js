@@ -226,7 +226,7 @@ async function main() {
     core.setOutput("assets-downloaded", Object.keys(downloadedAssets).length.toString());
     core.setOutput("variables-set", flavor.variables ? Object.keys(flavor.variables).length.toString() : "0");
     core.setOutput("project-type", projectType || 'none');
-    
+
     core.info("✅ Branding configuration applied successfully");
     if (Object.keys(downloadedAssets).length > 0) {
       core.info(`📥 Downloaded ${Object.keys(downloadedAssets).length} assets`);

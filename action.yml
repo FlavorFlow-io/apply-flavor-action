@@ -35,10 +35,10 @@ outputs:
     
   logo-path:
     description: 'Path to the downloaded logo file'
-    
+
   assets-downloaded:
     description: 'Number of assets that were downloaded'
-    
+
   variables-set:
     description: 'Number of environment variables that were set'
     

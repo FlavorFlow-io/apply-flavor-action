@@ -2,6 +2,22 @@ import * as core from "@actions/core";
 import * as path from "path";
 import * as fs from "fs";
 
+// The FlavorFlow API returns path-only URLs (e.g. /v1/assets/{id},
+// /api/flavors/{id}/logo/file) by convention; resolve them against the API base.
+const API_BASE_URL = "https://api.flavorflow.io";
+
+/**
+ * Resolves a possibly-relative asset URL against the API base URL.
+ * @param {string} url - Absolute or path-only URL
+ * @returns {string} - Absolute URL
+ */
+function resolveAssetUrl(url) {
+  if (/^https?:\/\//i.test(url)) {
+    return url;
+  }
+  return `${API_BASE_URL}${url.startsWith('/') ? '' : '/'}${url}`;
+}
+
 /**
  * Downloads an asset from URL and returns the absolute path
  * @param {string} assetUrl - The URL to download the asset from
@@ -11,10 +27,11 @@ import * as fs from "fs";
  */
 export async function downloadAsset(assetUrl, apiKey, outputPath) {
   try {
-    core.info(`Downloading asset from: ${assetUrl}`);
-    
+    const resolvedUrl = resolveAssetUrl(assetUrl);
+    core.info(`Downloading asset from: ${resolvedUrl}`);
+
     // Fetch the asset
-    const response = await fetch(assetUrl, {
+    const response = await fetch(resolvedUrl, {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${apiKey}`,
@@ -32,7 +49,7 @@ export async function downloadAsset(assetUrl, apiKey, outputPath) {
     
     // If no extension could be determined from content type, try to get it from URL
     if (!extension) {
-      const urlPath = new URL(assetUrl).pathname;
+      const urlPath = new URL(resolvedUrl).pathname;
       const urlExtension = path.extname(urlPath);
       if (urlExtension) {
         extension = urlExtension;

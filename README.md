@@ -152,27 +152,33 @@ jobs:
       flavors: ${{ steps.fetch-flavors.outputs.flavors }}
     steps:
       - id: fetch-flavors
-  uses: FlavorFlow-io/fetch-flavors-action@v1
+        uses: FlavorFlow-io/fetch-flavors-action@v1
         with:
-          project-api-key: ${{ secrets.PROJECT_API_KEY }}
+          api-key: ${{ secrets.PROJECT_API_KEY }}
+          project-id: ${{ vars.PROJECT_ID }}
 
   build:
     needs: fetch-flavors
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        flavor: ${{ fromJson(needs.fetch-flavors.outputs.flavors) }}
+        # fetch-flavors-action emits a bare array of matrix entries; a single
+        # fromJson(...) turns the (always-string) job output into that array.
+        include: ${{ fromJson(needs.fetch-flavors.outputs.flavors) }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-      
+
       - name: Apply branding
-  uses: FlavorFlow-io/apply-flavor-action@v1
+        uses: FlavorFlow-io/apply-flavor-action@v1
         with:
+          # Each entry nests the full client configuration under `flavor`, so it
+          # passes straight in — GitHub serializes the object to JSON for the
+          # input, no toJson(matrix) needed.
           flavor: ${{ matrix.flavor }}
           project-api-key: ${{ secrets.PROJECT_API_KEY }}
           project-type: 'android-native-compose'  # Specify project type
-      
+
       - name: Build for flavor
         run: |
           echo "Building for flavor: ${{ matrix.flavor.name }}"

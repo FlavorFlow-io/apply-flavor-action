@@ -1,4 +1,5 @@
 import * as core from '@actions/core';
+import * as fs from 'fs';
 import { readFileContent, writeFileContent, ensureDirectoryExists } from './fileUtils.js';
 import * as path from 'path';
 
@@ -18,7 +19,7 @@ export function updateAppName(appModule, config) {
   try {
     let content;
     
-    if (require('fs').existsSync(stringsPath)) {
+    if (fs.existsSync(stringsPath)) {
       content = readFileContent(stringsPath);
     } else {
       // Create new strings.xml
@@ -152,7 +153,7 @@ function detectExistingThemeParent(appModule) {
   const themesPath = path.join(appModule, 'src/main/res/values/themes.xml');
   
   try {
-    if (require('fs').existsSync(themesPath)) {
+    if (fs.existsSync(themesPath)) {
       const content = readFileContent(themesPath);
       
       // Look for existing parent themes
@@ -172,7 +173,7 @@ function updateManifestTheme(appModule, themeName) {
   const manifestPath = path.join(appModule, 'src/main/AndroidManifest.xml');
   
   try {
-    if (require('fs').existsSync(manifestPath)) {
+    if (fs.existsSync(manifestPath)) {
       const content = readFileContent(manifestPath);
       
       // Update application theme
@@ -207,7 +208,7 @@ export function updateApplicationId(appModule, packageName) {
     const buildPath = path.join(appModule, buildFile);
     
     try {
-      if (require('fs').existsSync(buildPath)) {
+      if (fs.existsSync(buildPath)) {
         const content = readFileContent(buildPath);
         
         // Look for current applicationId
@@ -244,7 +245,7 @@ export function updateApplicationId(appModule, packageName) {
     const buildPath = path.join(appModule, buildFile);
     
     try {
-      if (require('fs').existsSync(buildPath)) {
+      if (fs.existsSync(buildPath)) {
         let content = readFileContent(buildPath);
         const originalContent = content;
         

@@ -99,7 +99,7 @@ steps:
   - id: apply-branding
   uses: FlavorFlow-io/apply-flavor-action@v1
     with:
-      flavor: ${{ matrix.flavor }}
+      flavor: ${{ matrix.config }}
       project-api-key: ${{ secrets.PROJECT_API_KEY }}
       project-type: 'android-native-compose'  # Optional
       assets-destination: './custom-assets'   # Optional
@@ -119,7 +119,7 @@ steps:
   - id: apply-variables
   uses: FlavorFlow-io/apply-flavor-action@v1
     with:
-      flavor: ${{ matrix.flavor }}
+      flavor: ${{ matrix.config }}
       project-api-key: ${{ secrets.PROJECT_API_KEY }}
       # No project-type specified = environment variables only mode
       assets-destination: './assets'
@@ -172,15 +172,14 @@ jobs:
       - name: Apply branding
         uses: FlavorFlow-io/apply-flavor-action@v1
         with:
-          # Each entry nests the full client configuration under `flavor`, so it
-          # passes straight in — GitHub serializes the object to JSON for the
-          # input, no toJson(matrix) needed.
-          flavor: ${{ matrix.flavor }}
+          # `config` is the full client configuration pre-serialized as a JSON
+          # string, so it passes straight in — no toJson(matrix) needed.
+          flavor: ${{ matrix.config }}
           project-api-key: ${{ secrets.PROJECT_API_KEY }}
           project-type: 'android-native-compose'  # Specify project type
 
       - name: Build for flavor
         run: |
-          echo "Building for flavor: ${{ matrix.flavor.name }}"
+          echo "Building for flavor: ${{ matrix.name }}"
           # add your build steps here
 ```
